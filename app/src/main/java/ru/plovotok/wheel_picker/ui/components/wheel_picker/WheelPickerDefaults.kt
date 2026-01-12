@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 object WheelPickerDefaults {
 
     const val DEFAULT_UNFOCUSED_ITEMS_COUNT = 6
-    val DefaultItemHeight = 50.dp
+    val DefaultItemHeight = 44.dp
 
     fun CacheDrawScope.pickerOverlay(
         edgeOffsetYPx: Float,

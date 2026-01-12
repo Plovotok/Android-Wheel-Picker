@@ -2,6 +2,7 @@ package ru.plovotok.wheel_picker.ui.components.wheel_picker
 
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.clipScrollableContainer
 import androidx.compose.foundation.gestures.Orientation
@@ -185,6 +186,10 @@ private fun ItemWrapper(
                     transformOrigin = transformOrigin
                 )
             }
+//            .border(
+//                1.dp,
+//                Color.Red
+//            )
             .padding(contentPadding),
         contentAlignment = contentAlignment
     ) {
@@ -244,7 +249,7 @@ private fun GraphicsLayerScope.render3DVerticalItemEffect(
     translationY = if (offsetFraction == 0f) {
         0f
     } else {
-        // Определяем видимую высоту элемента (вспоминаем тригонометрию)
+        // Определяем положение элемента по вертикали
         val h =
             (sin(Math.toRadians(offsetFraction.absoluteValue * 90.0)) * r).toFloat()
 
