@@ -91,8 +91,6 @@ class MainActivity : ComponentActivity() {
                                 scrimColor = MaterialTheme.colorScheme.background.copy(alpha = 0.7f),
                             ),
                             nonFocusedItems = 8,
-                            contentAlignment = Alignment.CenterStart,
-                            contentPadding = PaddingValues(horizontal = 20.dp),
                             itemContent = {
                                 Text(
                                     text = list[it],
