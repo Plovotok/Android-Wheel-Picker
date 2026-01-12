@@ -106,7 +106,7 @@ fun <T> WheelPicker(
 
     Box(
         modifier = modifier
-            .height(height / 1.19f) // Для curveRate = 1.29f, получено эмпирически
+            .height(height / (viewportCurveRate / curveRate)) // Для curveRate = 1.29f, получено эмпирически
             .clipScrollableContainer(orientation = Orientation.Vertical)
     ) {
         CompositionLocalProvider(
@@ -207,7 +207,8 @@ private val VerticalParentScrollConsumer = object : NestedScrollConnection {
 }
 
 // Коэффициент кривой, можно поставить свой
-private val curveRate = 1.29f
+private val curveRate = 1.29f // Наиболее похожий коэффициент на iOS
+private const val viewportCurveRate = 1.53f //  При этом коэффициенте заполняется весь viewport
 
 private fun GraphicsLayerScope.render3DVerticalItemEffect(
     index: Int,
@@ -235,15 +236,15 @@ private fun GraphicsLayerScope.render3DVerticalItemEffect(
 
     rotationX = -90 * offsetFraction
 
-    // Определяем радиус колеса
-    val r = (2f * viewportCenterY / Math.PI).toFloat()
+    // Определяем радиус колеса (L = π * r = viewportHeight * curveRate (считаем, что длина кривой равна сумме высот всех элементов, т.е. весь viewport, умноженный на коэффициент кривой))
+    val r = (2f * viewportCenterY * curveRate / Math.PI).toFloat()
 
     translationY = if (offsetFraction == 0f) {
         0f
     } else {
         // Определяем видимую высоту элемента (вспоминаем тригонометрию)
         val h =
-            (sin(Math.toRadians(offsetFraction.absoluteValue * 90.0)) * r * curveRate).toFloat()
+            (sin(Math.toRadians(offsetFraction.absoluteValue * 90.0)) * r).toFloat()
 
         // Вычисляем смещение элемента по вертикали
         val diffY = if (offsetFraction < 0) {
