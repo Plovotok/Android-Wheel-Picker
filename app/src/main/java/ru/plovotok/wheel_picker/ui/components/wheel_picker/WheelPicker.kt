@@ -29,13 +29,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
@@ -111,6 +116,7 @@ fun <T> WheelPicker(
                 state = state.lazyListState,
                 modifier = Modifier
                     .requiredHeight(height)
+                    .disableParentNestedVerticalScroll()
                     .drawWithCache {
                         pickerOverlay(
                             edgeOffsetYPx = edgeOffsetPx,
@@ -187,6 +193,19 @@ private fun ItemWrapper(
     }
 }
 
+private fun Modifier.disableParentNestedVerticalScroll() = this.nestedScroll(VerticalParentScrollConsumer)
+
+private val VerticalParentScrollConsumer = object : NestedScrollConnection {
+
+    override suspend fun onPostFling(consumed: Velocity, available: Velocity) = available
+
+    override fun onPostScroll(
+        consumed: Offset,
+        available: Offset,
+        source: NestedScrollSource,
+    ): Offset = available
+}
+
 // Коэффициент кривой, можно поставить свой
 private val curveRate = 1.29f
 
@@ -216,6 +235,7 @@ private fun GraphicsLayerScope.render3DVerticalItemEffect(
 
     rotationX = -90 * offsetFraction
 
+    // Определяем радиус колеса
     val r = (2f * viewportCenterY / Math.PI).toFloat()
 
     translationY = if (offsetFraction == 0f) {
