@@ -90,7 +90,6 @@ class MainActivity : ComponentActivity() {
                             overlay = OverlayConfiguration(
                                 scrimColor = MaterialTheme.colorScheme.background.copy(alpha = 0.7f),
                             ),
-                            nonFocusedItems = 8,
                             itemContent = {
                                 Text(
                                     text = list[it],

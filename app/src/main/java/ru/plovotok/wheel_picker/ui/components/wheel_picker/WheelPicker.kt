@@ -2,7 +2,6 @@ package ru.plovotok.wheel_picker.ui.components.wheel_picker
 
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.clipScrollableContainer
 import androidx.compose.foundation.gestures.Orientation
@@ -292,7 +291,7 @@ private fun WheelPickerPreview() {
                     fontSize = 18.sp
                 )
             },
-            nonFocusedItems = 6,
+            itemHeightDp = 38.dp,
             state = rememberWheelPickerState(
                 initialIndex = 4
             )
