@@ -28,7 +28,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.GraphicsLayerScope
@@ -57,7 +56,7 @@ data class OverlayConfiguration(
     val focusColor: Color = Color.Gray.copy(alpha = 0.4f),
     val cornerRadius: Dp = 8.dp,
     val horizontalPadding: Dp = 8.dp,
-    val verticalPadding: Dp = -6.dp
+    val verticalPadding: Dp = -2.dp,
 )
 
 @Composable
@@ -106,8 +105,8 @@ fun <T> WheelPicker(
 
     Box(
         modifier = modifier
-            .height(height / (viewportCurveRate / curveRate)) // Для curveRate = 1.29f, получено эмпирически
-            .clipScrollableContainer(orientation = Orientation.Vertical)
+            .height(height / (curveRate / viewportCurveRate))
+            .clipScrollableContainer(orientation = Orientation.Vertical) // обрезаем контент по вертикали, чтобы не накладывался оверлей на контент вне колеса
     ) {
         CompositionLocalProvider(
             LocalOverscrollFactory provides null
@@ -116,7 +115,7 @@ fun <T> WheelPicker(
                 state = state.lazyListState,
                 modifier = Modifier
                     .requiredHeight(height)
-                    .disableParentNestedVerticalScroll()
+                    .disableParentNestedVerticalScroll() // Блокируем скролл родителя
                     .drawWithCache {
                         pickerOverlay(
                             edgeOffsetYPx = edgeOffsetPx,
@@ -193,7 +192,8 @@ private fun ItemWrapper(
     }
 }
 
-private fun Modifier.disableParentNestedVerticalScroll() = this.nestedScroll(VerticalParentScrollConsumer)
+private fun Modifier.disableParentNestedVerticalScroll() =
+    this.nestedScroll(VerticalParentScrollConsumer)
 
 private val VerticalParentScrollConsumer = object : NestedScrollConnection {
 
@@ -207,8 +207,8 @@ private val VerticalParentScrollConsumer = object : NestedScrollConnection {
 }
 
 // Коэффициент кривой, можно поставить свой
-private val curveRate = 1.29f // Наиболее похожий коэффициент на iOS
-private const val viewportCurveRate = 1.53f //  При этом коэффициенте заполняется весь viewport
+private val curveRate = 1.0f
+private const val viewportCurveRate = 0.653f //  При этом коэффициенте заполняется весь viewport, получен эмпирически
 
 private fun GraphicsLayerScope.render3DVerticalItemEffect(
     index: Int,
@@ -236,8 +236,10 @@ private fun GraphicsLayerScope.render3DVerticalItemEffect(
 
     rotationX = -90 * offsetFraction
 
-    // Определяем радиус колеса (L = π * r = viewportHeight * curveRate (считаем, что длина кривой равна сумме высот всех элементов, т.е. весь viewport, умноженный на коэффициент кривой))
-    val r = (2f * viewportCenterY * curveRate / Math.PI).toFloat()
+    // Определяем радиус колеса (L = π * r = viewportHeight / curveRate (считаем, что длина кривой
+    // равна сумме высот всех элементов, т.е. весь viewport, деленный на коэффициент кривой, т.к.
+    // длина окружности меньше суммы всех видимых элементов)
+    val r = (2f * viewportCenterY / curveRate / Math.PI).toFloat()
 
     translationY = if (offsetFraction == 0f) {
         0f

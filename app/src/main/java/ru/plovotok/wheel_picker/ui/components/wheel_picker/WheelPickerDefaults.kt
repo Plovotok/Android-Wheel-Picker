@@ -9,14 +9,13 @@ import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathOperation
-import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.unit.dp
 
 object WheelPickerDefaults {
 
     const val DEFAULT_UNFOCUSED_ITEMS_COUNT = 6
-    val DefaultItemHeight = 38.dp
+    val DefaultItemHeight = 50.dp
 
     fun CacheDrawScope.pickerOverlay(
         edgeOffsetYPx: Float,
