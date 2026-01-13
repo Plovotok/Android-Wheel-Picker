@@ -6,7 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -25,16 +24,15 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import ru.plovotok.wheel_picker.ui.components.wheel_picker.OverlayConfiguration
-import ru.plovotok.wheel_picker.ui.components.wheel_picker.WheelPicker
-import ru.plovotok.wheel_picker.ui.components.wheel_picker.rememberWheelPickerState
+import ru.plovotok.wheelpicker.OverlayConfiguration
+import ru.plovotok.wheelpicker.WheelPicker
+import ru.plovotok.wheelpicker.rememberWheelPickerState
 import ru.plovotok.wheel_picker.ui.theme.PickerSampleAppTheme
 
 class MainActivity : ComponentActivity() {

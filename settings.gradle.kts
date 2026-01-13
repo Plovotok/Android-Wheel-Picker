@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Picker Sample app"
 include(":app")
- 
+include(":wheelPicker")

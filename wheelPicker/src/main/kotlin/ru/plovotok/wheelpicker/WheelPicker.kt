@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
-package ru.plovotok.wheel_picker.ui.components.wheel_picker
+package ru.plovotok.wheelpicker
 
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.background
@@ -58,7 +58,7 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
-import ru.plovotok.wheel_picker.ui.components.wheel_picker.WheelPickerDefaults.pickerOverlay
+import ru.plovotok.wheelpicker.WheelPickerDefaults.pickerOverlay
 import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.cos
@@ -232,7 +232,7 @@ private val VerticalParentScrollConsumer = object : NestedScrollConnection {
 }
 
 // Коэффициент кривой, можно поставить свой
-private val curveRate = 1.0f
+const val curveRate = 1.0f
 private const val viewportCurveRate = 0.653f //  При этом коэффициенте заполняется весь viewport, получен эмпирически
 
 private fun GraphicsLayerScope.render3DVerticalItemEffect(

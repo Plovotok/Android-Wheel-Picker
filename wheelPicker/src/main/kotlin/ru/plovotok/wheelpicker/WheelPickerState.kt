@@ -1,4 +1,4 @@
-package ru.plovotok.wheel_picker.ui.components.wheel_picker
+package ru.plovotok.wheelpicker
 
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.lazy.LazyListState
