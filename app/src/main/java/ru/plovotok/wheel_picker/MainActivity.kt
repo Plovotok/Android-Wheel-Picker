@@ -63,7 +63,7 @@ class MainActivity : ComponentActivity() {
                         }
 
                         val pickerState = rememberWheelPickerState(
-                            infinite = true,
+                            infinite = false,
                             initialIndex = 4
                         )
 

@@ -2,11 +2,10 @@ package ru.plovotok.wheel_picker.ui.components.wheel_picker
 
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.clipScrollableContainer
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -36,6 +35,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -46,6 +46,7 @@ import kotlinx.coroutines.launch
 import ru.plovotok.wheel_picker.ui.components.wheel_picker.WheelPickerDefaults.pickerOverlay
 import kotlin.math.abs
 import kotlin.math.absoluteValue
+import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.math.sin
@@ -122,6 +123,22 @@ fun <T> WheelPicker(
                             itemHeightPx = itemHeightPx,
                             overlay = overlay
                         )
+                    }
+                    .pointerInput(Unit) {
+                        detectTapGestures {
+                            val clickedItem = calculateTapItem(
+                                tapOffset = it,
+                                getLayoutInfo = {
+                                    state.lazyListState.layoutInfo
+                                }
+                            )
+
+                            clickedItem?.let {
+                                scope.launch {
+                                    state.lazyListState.animateScrollToItem(it)
+                                }
+                            }
+                        }
                     },
                 contentPadding = PaddingValues(vertical = edgeOffsetDp),
                 flingBehavior = rememberSnapFlingBehavior(lazyListState = state.lazyListState)
@@ -136,11 +153,6 @@ fun <T> WheelPicker(
 
                     ItemWrapper(
                         modifier = Modifier.fillMaxWidth(),
-                        onItemClick = {
-                            scope.launch {
-                                state.lazyListState.animateScrollToItem(index)
-                            }
-                        },
                         itemHeightDp = itemHeightDp,
                         contentPadding = contentPadding,
                         contentAlignment = contentAlignment,
@@ -161,7 +173,6 @@ fun <T> WheelPicker(
 @Composable
 private fun ItemWrapper(
     modifier: Modifier,
-    onItemClick: () -> Unit,
     itemHeightDp: Dp,
     contentPadding: PaddingValues,
     contentAlignment: Alignment,
@@ -172,11 +183,6 @@ private fun ItemWrapper(
 ) {
     Box(
         modifier = modifier
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onItemClick
-            )
             .requiredHeight(itemHeightDp)
             .graphicsLayer {
                 render3DVerticalItemEffect(
@@ -270,6 +276,35 @@ private fun getItemCenter(itemInfo: LazyListItemInfo): Float {
     return itemInfo.offset.toFloat() + itemCenterY
 }
 
+private fun calculateTapItem(
+    tapOffset: Offset,
+    getLayoutInfo: () -> LazyListLayoutInfo
+): Int? {
+    val layoutInfo = getLayoutInfo()
+    val viewportCenterY = layoutInfo.viewportSize.height / 2F
+
+    return layoutInfo.visibleItemsInfo.find {
+        val itemCenterY = getItemCenter(it) + layoutInfo.beforeContentPadding
+
+        val offsetFraction = (itemCenterY - viewportCenterY) / viewportCenterY
+
+        val r = (2f * viewportCenterY  / curveRate / Math.PI).toFloat()
+
+        val h =
+            (sin(Math.toRadians(offsetFraction.absoluteValue * 90.0)) * r).toFloat()
+        val diffY = if (offsetFraction < 0) {
+            (viewportCenterY - h.absoluteValue) - itemCenterY.absoluteValue
+        } else {
+            (viewportCenterY + h.absoluteValue) - itemCenterY.absoluteValue
+        }
+        // высота элемента, которую видит пользователь
+        val itemHeightVisible = it.size * cos(Math.toRadians(offsetFraction.absoluteValue * 90.0))
+
+        // Находим, в границах какого элемента попадает tapOffset
+        tapOffset.y in (itemCenterY + diffY - itemHeightVisible / 2) .. (itemCenterY + diffY + itemHeightVisible / 2)
+    }?.index // возвращаем индекс элемента
+}
+
 
 @Preview
 @Composable
@@ -291,7 +326,8 @@ private fun WheelPickerPreview() {
                     fontSize = 18.sp
                 )
             },
-            itemHeightDp = 38.dp,
+            itemHeightDp = 50.dp,
+            nonFocusedItems = 10,
             state = rememberWheelPickerState(
                 initialIndex = 4
             )
