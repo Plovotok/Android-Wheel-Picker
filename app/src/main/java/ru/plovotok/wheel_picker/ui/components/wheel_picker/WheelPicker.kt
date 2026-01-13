@@ -300,7 +300,7 @@ private fun calculateTapItem(
         // высота элемента, которую видит пользователь
         val itemHeightVisible = it.size * cos(Math.toRadians(offsetFraction.absoluteValue * 90.0))
 
-        // Находим, в границах какого элемента попадает tapOffset
+        // Находим, в границы какого элемента попадает tapOffset
         tapOffset.y in (itemCenterY + diffY - itemHeightVisible / 2) .. (itemCenterY + diffY + itemHeightVisible / 2)
     }?.index // возвращаем индекс элемента
 }
