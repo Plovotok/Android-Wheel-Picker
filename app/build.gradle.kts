@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "ru.plovotok.wheel_picker"
+    namespace = "github.plovotok.wheel_picker"
     compileSdk {
         version = release(36)
     }

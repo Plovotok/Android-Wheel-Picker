@@ -1,4 +1,4 @@
-package ru.plovotok.wheel_picker
+package github.plovotok.wheel_picker
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -30,10 +30,10 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import ru.plovotok.wheelpicker.OverlayConfiguration
-import ru.plovotok.wheelpicker.WheelPicker
-import ru.plovotok.wheelpicker.rememberWheelPickerState
-import ru.plovotok.wheel_picker.ui.theme.PickerSampleAppTheme
+import io.github.plovotok.wheelpicker.OverlayConfiguration
+import io.github.plovotok.wheelpicker.WheelPicker
+import io.github.plovotok.wheelpicker.rememberWheelPickerState
+import github.plovotok.wheel_picker.ui.theme.PickerSampleAppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

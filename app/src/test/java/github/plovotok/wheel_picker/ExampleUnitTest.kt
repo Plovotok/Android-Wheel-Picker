@@ -1,4 +1,4 @@
-package ru.plovotok.wheel_picker
+package github.plovotok.wheel_picker
 
 import org.junit.Test
 

@@ -1,6 +1,9 @@
 # Android WheelPicker
 Example of an iOS implementation UIPickerView in JetpackCompose
 
+## Latest Release
+[![Latest Release](https://maven-badges.sml.io/sonatype-central/io.github.plovotok/android-wheel-picker/badge.svg?subject=Latest%20Release&color=blue)](https://maven-badges.sml.io/sonatype-central/io.github.plovotok/android-wheel-picker/)
+
 # Preview
 <img src="/assets/preview_screenshot.png" width="400" />
 <img src="/assets/preview.gif" width="400" />

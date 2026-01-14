@@ -1,4 +1,4 @@
-package ru.plovotok.wheel_picker
+package github.plovotok.wheel_picker
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

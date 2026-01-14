@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Picker Sample app"
+rootProject.name = "Android-Wheel-Picker"
 include(":app")
 include(":wheelPicker")
