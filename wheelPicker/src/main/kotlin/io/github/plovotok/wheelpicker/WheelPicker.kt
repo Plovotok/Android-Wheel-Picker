@@ -206,10 +206,6 @@ private fun ItemWrapper(
                     transformOrigin = transformOrigin
                 )
             }
-//            .border(
-//                1.dp,
-//                Color.Red
-//            )
             .padding(contentPadding),
         contentAlignment = contentAlignment
     ) {
