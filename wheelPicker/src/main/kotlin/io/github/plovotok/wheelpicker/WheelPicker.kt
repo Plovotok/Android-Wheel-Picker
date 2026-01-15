@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListItemInfo
@@ -57,8 +56,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.launch
 import io.github.plovotok.wheelpicker.WheelPickerDefaults.pickerOverlay
+import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.cos
@@ -84,10 +83,9 @@ fun <T> WheelPicker(
     state: WheelPickerState,
     nonFocusedItems: Int = WheelPickerDefaults.DEFAULT_UNFOCUSED_ITEMS_COUNT,
     contentAlignment: Alignment = Alignment.Center,
-    contentPadding: PaddingValues = PaddingValues(horizontal = 8.dp),
     itemHeightDp: Dp = WheelPickerDefaults.DefaultItemHeight,
     transformOrigin: TransformOrigin = TransformOrigin.Center,
-    overlay: OverlayConfiguration = OverlayConfiguration()
+    overlay: OverlayConfiguration? = OverlayConfiguration()
 ) {
 
     // редактируем количество так, чтобы получилось нечетное количество элементов
@@ -150,7 +148,7 @@ fun <T> WheelPicker(
 
                             clickedItem?.let {
                                 scope.launch {
-                                    state.lazyListState.animateScrollToItem(it)
+                                    state.animateScrollToItemInternal(it)
                                 }
                             }
                         }
@@ -169,7 +167,6 @@ fun <T> WheelPicker(
                     ItemWrapper(
                         modifier = Modifier.fillMaxWidth(),
                         itemHeightDp = itemHeightDp,
-                        contentPadding = contentPadding,
                         contentAlignment = contentAlignment,
                         index = index,
                         transformOrigin = transformOrigin,
@@ -189,7 +186,6 @@ fun <T> WheelPicker(
 private fun ItemWrapper(
     modifier: Modifier,
     itemHeightDp: Dp,
-    contentPadding: PaddingValues,
     contentAlignment: Alignment,
     index: Int,
     getLayoutInfo: () -> LazyListLayoutInfo,
@@ -206,7 +202,11 @@ private fun ItemWrapper(
                     transformOrigin = transformOrigin
                 )
             }
-            .padding(contentPadding),
+//            .border(
+//                1.dp,
+//                 Color.Red
+//            )
+            ,
         contentAlignment = contentAlignment
     ) {
         content()
@@ -229,7 +229,7 @@ private val VerticalParentScrollConsumer = object : NestedScrollConnection {
 
 // Коэффициент кривой, можно поставить свой
 const val curveRate = 1.0f
-private const val viewportCurveRate = 0.653f //  При этом коэффициенте заполняется весь viewport, получен эмпирически
+const val viewportCurveRate = 0.653f //  При этом коэффициенте заполняется весь viewport, получен эмпирически
 
 private fun GraphicsLayerScope.render3DVerticalItemEffect(
     index: Int,
@@ -334,7 +334,7 @@ private fun WheelPickerPreview() {
                 Text(
                     text = list[it],
                     color = Color.Black,
-                    fontSize = 18.sp
+                    fontSize = 20.sp
                 )
             },
             itemHeightDp = 50.dp,

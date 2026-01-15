@@ -1,5 +1,6 @@
 package io.github.plovotok.wheelpicker
 
+import android.util.Log
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
@@ -54,7 +55,7 @@ class WheelPickerState(
     }
 
     // Может быть отрицательным
-    internal val currentSelectedItemIndex by derivedStateOf {
+    val currentSelectedItemIndex by derivedStateOf {
         if (infinite) {
             selectedItem?.index?.minus(INFINITE_OFFSET)
         } else {
@@ -143,7 +144,7 @@ class WheelPickerState(
         return if (forwardShift <= -backwardShift) forwardShift to backwardShift else backwardShift to forwardShift
     }
 
-    private suspend fun animateScrollToItemInternal(index: Int) {
+    internal suspend fun animateScrollToItemInternal(index: Int) {
         lazyListState.animateScrollToItem(index)
     }
 
@@ -169,8 +170,8 @@ fun Int.modSign(o: Int): Int = mod(o).let {
 
 @Composable
 fun rememberWheelPickerState(
-    infinite: Boolean = false,
     initialIndex: Int = 0,
+    infinite: Boolean = false,
 ): WheelPickerState {
 
     return rememberSaveable(

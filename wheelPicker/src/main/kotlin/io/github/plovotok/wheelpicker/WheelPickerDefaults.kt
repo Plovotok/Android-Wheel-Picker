@@ -35,36 +35,40 @@ object WheelPickerDefaults {
     fun CacheDrawScope.pickerOverlay(
         edgeOffsetYPx: Float,
         itemHeightPx: Int,
-        overlay: OverlayConfiguration,
+        overlay: OverlayConfiguration?,
     ): DrawResult {
-        val w = this.size.width
-        val h = this.size.height
-        val radius = overlay.cornerRadius.toPx()
-        val verticalPadding = overlay.verticalPadding.toPx()
-        val horizontalPadding = overlay.horizontalPadding.toPx()
+        return if (overlay != null) {
+            val w = this.size.width
+            val h = this.size.height
+            val radius = overlay.cornerRadius.toPx()
+            val verticalPadding = overlay.verticalPadding.toPx()
+            val horizontalPadding = overlay.horizontalPadding.toPx()
 
-        val scrimHeight = edgeOffsetYPx + verticalPadding
-        val highlightHeight = itemHeightPx - verticalPadding * 2
-        val path = getCenterItemPath(
-            width = w,
-            height = h,
-            itemHeightPx = itemHeightPx,
-            edgeOffsetY = edgeOffsetYPx,
-            horizontalPadding = horizontalPadding,
-            verticalPadding = verticalPadding,
-            radius = radius
-        )
-        return onDrawWithContent {
-            drawContent()
-            this.drawPath(path, overlay.scrimColor)
-
-            this.drawRoundRect(
-                color = overlay.focusColor,
-                topLeft = Offset(x = horizontalPadding, y = scrimHeight),
-                size = Size(w - horizontalPadding * 2, highlightHeight),
-                cornerRadius = CornerRadius(radius),
-                style = Fill,
+            val scrimHeight = edgeOffsetYPx + verticalPadding
+            val highlightHeight = itemHeightPx - verticalPadding * 2
+            val path = getCenterItemPath(
+                width = w,
+                height = h,
+                itemHeightPx = itemHeightPx,
+                edgeOffsetY = edgeOffsetYPx,
+                horizontalPadding = horizontalPadding,
+                verticalPadding = verticalPadding,
+                radius = radius
             )
+            onDrawWithContent {
+                drawContent()
+                this.drawPath(path, overlay.scrimColor)
+
+                this.drawRoundRect(
+                    color = overlay.focusColor,
+                    topLeft = Offset(x = horizontalPadding, y = scrimHeight),
+                    size = Size(w - horizontalPadding * 2, highlightHeight),
+                    cornerRadius = CornerRadius(radius),
+                    style = Fill,
+                )
+            }
+        } else onDrawWithContent {
+            drawContent()
         }
     }
 
