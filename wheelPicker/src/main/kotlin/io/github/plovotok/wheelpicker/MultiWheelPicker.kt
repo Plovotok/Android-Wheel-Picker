@@ -60,13 +60,13 @@ public data class WheelConfig(
  * @param overlay Overlay configuration (background, selection) common to all wheels. If 'null', the overlay is not displayed.
  */
 @Composable
-public fun <T> MultiWheelPicker(
+public fun MultiWheelPicker(
     modifier: Modifier = Modifier,
     nonFocusedItems: Int = WheelPickerDefaults.DEFAULT_UNFOCUSED_ITEMS_COUNT,
     itemHeightDp: Dp = WheelPickerDefaults.DefaultItemHeight,
     wheelConfig: (wheelIndex: Int) -> WheelConfig = { WheelConfig() },
     wheelCount: Int,
-    data: (wheelIndex: Int) -> List<T>,
+    data: (wheelIndex: Int) -> List<*>,
     itemContent: @Composable (wheelIndex: Int, index: Int)  -> Unit,
     state: (wheelIndex: Int) -> WheelPickerState,
     contentAlignment: (wheelIndex: Int) -> Alignment = { Alignment.Center },

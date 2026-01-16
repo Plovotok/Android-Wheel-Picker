@@ -103,9 +103,9 @@ public data class OverlayConfiguration(
  * @param overlay Overlay configuration (background, selection, padding).If 'null', the overlay is not displayed.
  */
 @Composable
-public fun <T> WheelPicker(
+public fun WheelPicker(
     modifier: Modifier = Modifier,
-    data: List<T>,
+    data: List<*>,
     key: (index: Int) -> String? = { null },
     itemContent: @Composable (Int) -> Unit,
     state: WheelPickerState,
