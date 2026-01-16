@@ -51,7 +51,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
+import io.github.plovotok.wheelpicker.WheelPickerDefaults.curveRate
 import io.github.plovotok.wheelpicker.WheelPickerDefaults.pickerOverlay
+import io.github.plovotok.wheelpicker.WheelPickerDefaults.viewportCurveRate
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.absoluteValue
@@ -61,7 +63,7 @@ import kotlin.math.roundToInt
 import kotlin.math.sin
 
 @Stable
-data class OverlayConfiguration(
+public data class OverlayConfiguration(
     val scrimColor: Color = Color.White.copy(alpha = 0.7f),
     val focusColor: Color = Color.Gray.copy(alpha = 0.4f),
     val cornerRadius: Dp = 7.dp,
@@ -70,7 +72,7 @@ data class OverlayConfiguration(
 )
 
 @Composable
-fun <T> WheelPicker(
+public fun <T> WheelPicker(
     modifier: Modifier = Modifier,
     data: List<T>,
     key: (index: Int) -> String? = { null },
@@ -196,7 +198,8 @@ private fun ItemWrapper(
                     getLayoutInfo = getLayoutInfo,
                     transformOrigin = transformOrigin
                 )
-            },
+            }
+        ,
         contentAlignment = contentAlignment
     ) {
         content()
@@ -217,10 +220,6 @@ private val VerticalParentScrollConsumer = object : NestedScrollConnection {
     ): Offset = available
 }
 
-// Коэффициент кривой, можно поставить свой
-const val curveRate = 1.0f
-const val viewportCurveRate = 0.653f //  При этом коэффициенте заполняется весь viewport, получен эмпирически
-
 private fun GraphicsLayerScope.render3DVerticalItemEffect(
     index: Int,
     getLayoutInfo: () -> LazyListLayoutInfo,
@@ -237,7 +236,7 @@ private fun GraphicsLayerScope.render3DVerticalItemEffect(
     val offsetFraction = (itemCenterY - viewportCenterY) / viewportCenterY
 
     // Визуальное сужение элемента (квадратичная функция с коэффициентом создает более плавный эффект)
-    val scale = 1 - (offsetFraction.absoluteValue).pow(2) * 0.115f
+    val scale = 1 - (offsetFraction.absoluteValue).pow(2) * 0.11f
     scaleX = scale
 
     // Не показываем элементы, которые не попадают в viewport
@@ -268,7 +267,7 @@ private fun GraphicsLayerScope.render3DVerticalItemEffect(
         diffY
     }
     // Добавляем перспективу (значение вычислено эмпирически)
-    this.cameraDistance = layoutInfo.viewportSize.height.toFloat() / 26f
+    this.cameraDistance = layoutInfo.viewportSize.height.toFloat() / 25f
     this.transformOrigin = transformOrigin
 }
 

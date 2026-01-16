@@ -1,6 +1,5 @@
 package io.github.plovotok.wheelpicker
 
-import android.util.Log
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
@@ -18,7 +17,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 @Stable
-class WheelPickerState(
+public class WheelPickerState(
     internal val infinite: Boolean = false,
     internal val initiallySelectedItemIndex: Int = 0
 ) {
@@ -28,16 +27,16 @@ class WheelPickerState(
         initiallySelectedItemIndex
     }
 
-    val canScrollBackward: Boolean
+    public val canScrollBackward: Boolean
         get() = lazyListState.canScrollBackward
 
-    val canScrollForward: Boolean
+    public val canScrollForward: Boolean
         get() = lazyListState.canScrollForward
 
-    val isScrollInProgress: Boolean
+    public val isScrollInProgress: Boolean
         get() = lazyListState.isScrollInProgress
 
-    val interactionSource: InteractionSource
+    public val interactionSource: InteractionSource
         get() = lazyListState.interactionSource
 
 
@@ -55,7 +54,7 @@ class WheelPickerState(
     }
 
     // Может быть отрицательным
-    val currentSelectedItemIndex by derivedStateOf {
+    public val currentSelectedItemIndex: Int by derivedStateOf {
         if (infinite) {
             selectedItem?.index?.minus(INFINITE_OFFSET)
         } else {
@@ -63,23 +62,21 @@ class WheelPickerState(
         } ?: initiallySelectedItemIndex
     }
 
-    fun selectedItem(itemsCount: Int) = currentSelectedItemIndex.modSign(itemsCount)
+    public fun selectedItem(itemsCount: Int): Int = currentSelectedItemIndex.modSign(itemsCount)
 
     private fun selectedItemState(itemsCount : Int) : State<Int> {
         return derivedStateOf { currentSelectedItemIndex.modSign(itemsCount) }
     }
 
     @Composable
-    fun selectedItemIndex(totalItemsCount: Int): Int =
+    public fun selectedItemIndex(totalItemsCount: Int): Int =
         remember(totalItemsCount) {
             derivedStateOf {
                 selectedItem(totalItemsCount)
             }
         }.value
 
-    var isChangingProgrammatically: Boolean by mutableStateOf(false)
-
-    suspend fun animateScrollToItem(index: Int, totalItemsCount: Int) {
+    public suspend fun animateScrollToItem(index: Int, totalItemsCount: Int) {
         if (index >= 0) {
             if (infinite) {
                 val currentIndex = currentSelectedItemIndex + INFINITE_OFFSET
@@ -95,27 +92,9 @@ class WheelPickerState(
                 } else {
                     if (diff.first + currentIndex > 0) diff.first else diff.second
                 }
-                coroutineScope {
-                    val job = launch {
-                        isChangingProgrammatically = true
-                        animateScrollToItemInternal(currentIndex + append)
-                    }
-                    job.invokeOnCompletion {
-                        isChangingProgrammatically = false
-                    }
-                    job.join()
-                }
+                animateScrollToItemInternal(currentIndex + append)
             } else {
-                coroutineScope {
-                    val job = launch {
-                        isChangingProgrammatically = true
-                        animateScrollToItemInternal(index)
-                    }
-                    job.invokeOnCompletion {
-                        isChangingProgrammatically = false
-                    }
-                    job.join()
-                }
+                animateScrollToItemInternal(index)
             }
         }
     }
@@ -148,7 +127,7 @@ class WheelPickerState(
         lazyListState.animateScrollToItem(index)
     }
 
-    companion object {
+    internal companion object {
         fun Saver() = listSaver(
             save = {
                 listOf(it.infinite,  it.currentSelectedItemIndex)
@@ -164,12 +143,12 @@ class WheelPickerState(
 
 }
 
-fun Int.modSign(o: Int): Int = mod(o).let {
+private fun Int.modSign(o: Int): Int = mod(o).let {
     if (it >= 0) it else this - it
 }
 
 @Composable
-fun rememberWheelPickerState(
+public fun rememberWheelPickerState(
     initialIndex: Int = 0,
     infinite: Boolean = false,
 ): WheelPickerState {

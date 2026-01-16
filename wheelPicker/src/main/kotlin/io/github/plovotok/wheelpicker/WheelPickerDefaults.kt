@@ -25,14 +25,15 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-object WheelPickerDefaults {
+public object WheelPickerDefaults {
 
-    const val DEFAULT_UNFOCUSED_ITEMS_COUNT = 8
-    val DefaultItemHeight = 44.dp
+    public const val DEFAULT_UNFOCUSED_ITEMS_COUNT: Int = 8
+    public val DefaultItemHeight: Dp = 44.dp
 
-    fun CacheDrawScope.pickerOverlay(
+    internal fun CacheDrawScope.pickerOverlay(
         edgeOffsetYPx: Float,
         itemHeightPx: Int,
         overlay: OverlayConfiguration?,
@@ -97,4 +98,7 @@ object WheelPickerDefaults {
         resPath.op(boundPath,focusPath, PathOperation.Difference)
         return resPath
     }
+
+    internal const val curveRate = 1.0f
+    internal const val viewportCurveRate = 0.653f //  При этом коэффициенте заполняется весь viewport, получен эмпирически
 }
