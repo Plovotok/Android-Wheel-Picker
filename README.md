@@ -1,8 +1,35 @@
 # Android WheelPicker
 Example of an iOS implementation UIPickerView in JetpackCompose
 
+
+## Features
+- iOS like behavior - smooth scrolling with inertia and snapping the selected element
+- Customization - colors, visible items
+- Infinite list support
+- Observable state
+- Programmatically selectable index
+
 ## Latest Release
 [![Latest Release](https://maven-badges.sml.io/sonatype-central/io.github.plovotok/android-wheel-picker/badge.svg?subject=Latest%20Release&color=blue)](https://maven-badges.sml.io/sonatype-central/io.github.plovotok/android-wheel-picker/)
+
+## Usage
+`libs.versions.toml` file:
+```toml
+[versions]
+#...
+wheel = "0.0.1-alpha02"
+
+[libraries]
+#...
+wheel-picker = { module = "io.github.plovotok:android-wheel-picker", version.ref = "wheel" }
+```
+
+`build.gradle.kts` file:
+```kotlin
+dependencies {
+    implementation(libs.wheel.picker)
+}
+```
 
 # Preview
 <img src="/assets/preview_screenshot.png" width="400" />
