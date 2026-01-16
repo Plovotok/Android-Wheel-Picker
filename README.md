@@ -20,7 +20,7 @@ Example of an iOS implementation UIPickerView in JetpackCompose
 ```toml
 [versions]
 #...
-wheel = "0.0.1-alpha02"
+wheel = "$latest"
 
 [libraries]
 #...
