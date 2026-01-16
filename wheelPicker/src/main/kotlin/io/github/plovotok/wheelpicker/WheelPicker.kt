@@ -16,13 +16,11 @@ limitations under the License.
 package io.github.plovotok.wheelpicker
 
 import androidx.compose.foundation.LocalOverscrollFactory
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clipScrollableContainer
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -30,7 +28,6 @@ import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListItemInfo
 import androidx.compose.foundation.lazy.LazyListLayoutInfo
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Stable
@@ -51,11 +48,9 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import io.github.plovotok.wheelpicker.WheelPickerDefaults.pickerOverlay
 import kotlinx.coroutines.launch
 import kotlin.math.abs
@@ -69,8 +64,8 @@ import kotlin.math.sin
 data class OverlayConfiguration(
     val scrimColor: Color = Color.White.copy(alpha = 0.7f),
     val focusColor: Color = Color.Gray.copy(alpha = 0.4f),
-    val cornerRadius: Dp = 8.dp,
-    val horizontalPadding: Dp = 8.dp,
+    val cornerRadius: Dp = 7.dp,
+    val horizontalPadding: Dp = 0.dp,
     val verticalPadding: Dp = -2.dp,
 )
 
@@ -201,12 +196,7 @@ private fun ItemWrapper(
                     getLayoutInfo = getLayoutInfo,
                     transformOrigin = transformOrigin
                 )
-            }
-//            .border(
-//                1.dp,
-//                 Color.Red
-//            )
-            ,
+            },
         contentAlignment = contentAlignment
     ) {
         content()
@@ -247,7 +237,7 @@ private fun GraphicsLayerScope.render3DVerticalItemEffect(
     val offsetFraction = (itemCenterY - viewportCenterY) / viewportCenterY
 
     // Визуальное сужение элемента (квадратичная функция с коэффициентом создает более плавный эффект)
-    val scale = 1 - (offsetFraction.absoluteValue).pow(2) * 0.1f
+    val scale = 1 - (offsetFraction.absoluteValue).pow(2) * 0.115f
     scaleX = scale
 
     // Не показываем элементы, которые не попадают в viewport
@@ -278,7 +268,7 @@ private fun GraphicsLayerScope.render3DVerticalItemEffect(
         diffY
     }
     // Добавляем перспективу (значение вычислено эмпирически)
-    this.cameraDistance = layoutInfo.viewportSize.height.toFloat() / 22f
+    this.cameraDistance = layoutInfo.viewportSize.height.toFloat() / 26f
     this.transformOrigin = transformOrigin
 }
 
@@ -314,34 +304,4 @@ private fun calculateTapItem(
         // Находим, в границы какого элемента попадает tapOffset
         tapOffset.y in (itemCenterY + diffY - itemHeightVisible / 2) .. (itemCenterY + diffY + itemHeightVisible / 2)
     }?.index // возвращаем индекс элемента
-}
-
-
-@Preview
-@Composable
-private fun WheelPickerPreview() {
-    val list = buildList {
-        repeat(10) {
-            add("Item ${(it + 1)}")
-        }
-    }
-    Column(
-        modifier = Modifier.background(Color.White)
-    ) {
-        WheelPicker(
-            data = list,
-            itemContent = {
-                Text(
-                    text = list[it],
-                    color = Color.Black,
-                    fontSize = 20.sp
-                )
-            },
-            itemHeightDp = 50.dp,
-            nonFocusedItems = 10,
-            state = rememberWheelPickerState(
-                initialIndex = 4
-            )
-        )
-    }
 }
