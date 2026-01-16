@@ -1,6 +1,10 @@
 # Android WheelPicker
 Example of an iOS implementation UIPickerView in JetpackCompose
 
+# Preview
+<img src="/assets/preview_screenshot.png" width="300" />
+<img src="/assets/preview.gif" width="300" />
+
 
 ## Features
 - iOS like behavior - smooth scrolling with inertia and snapping the selected element
@@ -30,10 +34,6 @@ dependencies {
     implementation(libs.wheel.picker)
 }
 ```
-
-# Preview
-<img src="/assets/preview_screenshot.png" width="400" />
-<img src="/assets/preview.gif" width="400" />
 
 
 ## License
