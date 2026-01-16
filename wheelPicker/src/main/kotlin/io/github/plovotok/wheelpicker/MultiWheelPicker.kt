@@ -23,11 +23,42 @@ import io.github.plovotok.wheelpicker.WheelPickerDefaults.pickerOverlay
 import io.github.plovotok.wheelpicker.WheelPickerDefaults.viewportCurveRate
 import kotlin.math.roundToInt
 
+/**
+ * Single-wheel configuration in [MultiWheelPicker].
+ *
+ * Allows you to set the relative weight (width) of the wheel compared to others.
+ *
+ * @property weight The relative weight of the wheel, which determines its width.
+ * Width is distributed in proportion to the weights of all wheels.
+ * The default is 1f (evenly distributed).
+ */
 @Immutable
 public data class WheelConfig(
     val weight: Float = 1f,
 )
 
+/**
+ * A component of a multiple selection wheel (analogous to several [WheelPicker] arranged horizontally).
+ *
+ * Allows multiple independent selection wheels to be displayed in a single line, each of which is
+ * can have its own dataset, state, and alignment. Supports width adjustment
+ * of each wheel through weights.
+ *
+ * Example usage: select date (day, month, year), time (hours, minutes, seconds).
+ *
+ * @param T Type of data displayed in wheel elements.
+ * @param nonFocusedItems Number of visible items (out of focus). Will be adjusted to an odd number.
+ * @param itemHeightDp The height of a single item in dp. Applies to all wheels.
+ * @param wheelConfig A function that returns the [WheelConfig] configuration for each wheel based on its index.
+ * Determines the relative width of the wheel.
+ * @param wheelCount Number of wheels. Must be 1 at least.
+ * @param data A function that returns a list of data for each wheel by its index.
+ * @param itemContent A composable block to display an item. Accepts wheel index and element index.
+ * @param state A function that returns the state of [WheelPickerState] for each wheel based on its index.
+ * @param contentAlignment Function that returns the content alignment for each wheel.
+ * Default is centered.
+ * @param overlay Overlay configuration (background, selection) common to all wheels. If 'null', the overlay is not displayed.
+ */
 @Composable
 public fun <T> MultiWheelPicker(
     modifier: Modifier = Modifier,

@@ -16,6 +16,15 @@ import androidx.compose.ui.util.fastFirstOrNull
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
+/**
+ * The state of the [WheelPicker] component, which controls the currently selected element and scrolling.
+ *
+ * Supports both finite and infinite lists. In the case of infinite mode
+ * Uses virtual index shift to simulate infinite scrolling.
+ *
+ * @param infinite Enables infinite scrolling mode. The default is 'false'.
+ * @param initiallySelectedItemIndex The start index of the selected item. The default is '0'.
+ */
 @Stable
 public class WheelPickerState(
     internal val infinite: Boolean = false,
@@ -36,6 +45,11 @@ public class WheelPickerState(
     public val isScrollInProgress: Boolean
         get() = lazyListState.isScrollInProgress
 
+    /**
+     * [InteractionSource] that will be used to dispatch drag events when this list is being
+     * dragged. If you want to know whether the fling (or animated scroll) is in progress, use
+     * [isScrollInProgress].
+     */
     public val interactionSource: InteractionSource
         get() = lazyListState.interactionSource
 
@@ -54,7 +68,7 @@ public class WheelPickerState(
     }
 
     // Может быть отрицательным
-    public val currentSelectedItemIndex: Int by derivedStateOf {
+    private val currentSelectedItemIndex: Int by derivedStateOf {
         if (infinite) {
             selectedItem?.index?.minus(INFINITE_OFFSET)
         } else {
@@ -64,7 +78,7 @@ public class WheelPickerState(
 
     public fun selectedItem(itemsCount: Int): Int = currentSelectedItemIndex.modSign(itemsCount)
 
-    private fun selectedItemState(itemsCount : Int) : State<Int> {
+    public fun selectedItemState(itemsCount : Int) : State<Int> {
         return derivedStateOf { currentSelectedItemIndex.modSign(itemsCount) }
     }
 
@@ -76,6 +90,14 @@ public class WheelPickerState(
             }
         }.value
 
+    /**
+     * Animates the wheel to the specified element.
+     *
+     * In infinite mode, selects the optimal scrolling direction (shortest arc).
+     *
+     * @param index The target index of the element.
+     * @param totalItemsCount The total number of items in the list.
+     */
     public suspend fun animateScrollToItem(index: Int, totalItemsCount: Int) {
         if (index >= 0) {
             if (infinite) {
@@ -147,6 +169,13 @@ private fun Int.modSign(o: Int): Int = mod(o).let {
     if (it >= 0) it else this - it
 }
 
+/**
+ * Remembers and saves the state of [WheelPickerState] between recreates.
+ *
+ * @param initialIndex The start index of the selected item.
+ * @param infinite Enable infinite mode.
+ * @return instance of [WheelPickerState].
+ */
 @Composable
 public fun rememberWheelPickerState(
     initialIndex: Int = 0,

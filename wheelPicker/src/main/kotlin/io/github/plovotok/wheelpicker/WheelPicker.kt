@@ -62,6 +62,19 @@ import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.math.sin
 
+/**
+ * Overlay (underlay) display configuration for the selection wheel.
+ *
+ * Allows you to customize the appearance of the background and highlighted area.
+ *
+ * @property scrimColor The color of the darkened background outside the active zone.
+ * Default is white with 70% transparency.
+ * @property focusColor The color of the selected (focus) area where the active element is located.
+ * Default is gray with 40% transparency.
+ * @property cornerRadius The radius of the rounded corners of the overlay. Defaul value is 7.dp.
+ * @property horizontalPadding Horizontal overlay padding. The default is 0.dp.
+ * @property verticalPadding Vertical indentation of the overlay. The default is -2.dp (slightly out of bounds).
+ */
 @Stable
 public data class OverlayConfiguration(
     val scrimColor: Color = Color.White.copy(alpha = 0.7f),
@@ -71,6 +84,24 @@ public data class OverlayConfiguration(
     val verticalPadding: Dp = -2.dp,
 )
 
+/**
+ * A selection wheel component (similar to a 3D picker) that implements the spinning drum effect.
+ *
+ * Elements are displayed with a 3D perspective: the central element is closer to the user,
+ * and the side ones are rotated and reduced. Supports infinite scrolling, clicking on an element
+ * for quick selection and animated positioning.
+ *
+ * @param T The type of data displayed in the wheel elements.
+ * @param data The list of data from which the wheel elements are formed.
+ * @param key A function that returns a unique key for each item based on its index.
+ * @param itemContent A composable block that displays an item by its index in a list.
+ * @param state The state of the selection wheel, which controls the current position and scrolling.
+ * @param nonFocusedItems Number of visible items (out of focus). Will be adjusted to an odd number.
+ * @param contentAlignment Alignment of the content within each element. The default is centered.
+ * @param itemHeightDp The height of a single item in dp. The default value is from [WheelPickerDefaults.DefaultItemHeight].
+ * @param transformOrigin Transform point for 3D effects. The default is the center.
+ * @param overlay Overlay configuration (background, selection, padding).If 'null', the overlay is not displayed.
+ */
 @Composable
 public fun <T> WheelPicker(
     modifier: Modifier = Modifier,
