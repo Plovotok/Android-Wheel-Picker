@@ -1,7 +1,7 @@
 # Android WheelPicker
 Example of an iOS implementation UIPickerView in JetpackCompose
 
-# Preview
+## Preview
 <img src="/assets/preview_screenshot.png" width="300" /> <img src="/assets/preview.gif" width="300" />
 
 
