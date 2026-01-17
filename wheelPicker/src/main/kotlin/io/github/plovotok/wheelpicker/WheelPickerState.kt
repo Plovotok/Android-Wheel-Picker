@@ -1,3 +1,18 @@
+/*
+Copyright 2026 Plovotok
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+ */
 package io.github.plovotok.wheelpicker
 
 import androidx.compose.foundation.interaction.InteractionSource
@@ -16,8 +31,17 @@ import androidx.compose.ui.util.fastFirstOrNull
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
+/**
+ * The state of the [WheelPicker] component, which controls the currently selected element and scrolling.
+ *
+ * Supports both finite and infinite lists. In the case of infinite mode
+ * Uses virtual index shift to simulate infinite scrolling.
+ *
+ * @param infinite Enables infinite scrolling mode. The default is 'false'.
+ * @param initiallySelectedItemIndex The start index of the selected item. The default is '0'.
+ */
 @Stable
-class WheelPickerState(
+public class WheelPickerState(
     internal val infinite: Boolean = false,
     internal val initiallySelectedItemIndex: Int = 0
 ) {
@@ -27,16 +51,21 @@ class WheelPickerState(
         initiallySelectedItemIndex
     }
 
-    val canScrollBackward: Boolean
+    public val canScrollBackward: Boolean
         get() = lazyListState.canScrollBackward
 
-    val canScrollForward: Boolean
+    public val canScrollForward: Boolean
         get() = lazyListState.canScrollForward
 
-    val isScrollInProgress: Boolean
+    public val isScrollInProgress: Boolean
         get() = lazyListState.isScrollInProgress
 
-    val interactionSource: InteractionSource
+    /**
+     * [InteractionSource] that will be used to dispatch drag events when this list is being
+     * dragged. If you want to know whether the fling (or animated scroll) is in progress, use
+     * [isScrollInProgress].
+     */
+    public val interactionSource: InteractionSource
         get() = lazyListState.interactionSource
 
 
@@ -54,7 +83,7 @@ class WheelPickerState(
     }
 
     // Может быть отрицательным
-    internal val currentSelectedItemIndex by derivedStateOf {
+    private val currentSelectedItemIndex: Int by derivedStateOf {
         if (infinite) {
             selectedItem?.index?.minus(INFINITE_OFFSET)
         } else {
@@ -62,23 +91,29 @@ class WheelPickerState(
         } ?: initiallySelectedItemIndex
     }
 
-    fun selectedItem(itemsCount: Int) = currentSelectedItemIndex.modSign(itemsCount)
+    public fun selectedItem(itemsCount: Int): Int = currentSelectedItemIndex.modSign(itemsCount)
 
-    private fun selectedItemState(itemsCount : Int) : State<Int> {
+    public fun selectedItemState(itemsCount : Int) : State<Int> {
         return derivedStateOf { currentSelectedItemIndex.modSign(itemsCount) }
     }
 
     @Composable
-    fun selectedItemIndex(totalItemsCount: Int): Int =
+    public fun selectedItemIndex(totalItemsCount: Int): Int =
         remember(totalItemsCount) {
             derivedStateOf {
                 selectedItem(totalItemsCount)
             }
         }.value
 
-    var isChangingProgrammatically: Boolean by mutableStateOf(false)
-
-    suspend fun animateScrollToItem(index: Int, totalItemsCount: Int) {
+    /**
+     * Animates the wheel to the specified element.
+     *
+     * In infinite mode, selects the optimal scrolling direction (shortest arc).
+     *
+     * @param index The target index of the element.
+     * @param totalItemsCount The total number of items in the list.
+     */
+    public suspend fun animateScrollToItem(index: Int, totalItemsCount: Int) {
         if (index >= 0) {
             if (infinite) {
                 val currentIndex = currentSelectedItemIndex + INFINITE_OFFSET
@@ -94,27 +129,9 @@ class WheelPickerState(
                 } else {
                     if (diff.first + currentIndex > 0) diff.first else diff.second
                 }
-                coroutineScope {
-                    val job = launch {
-                        isChangingProgrammatically = true
-                        animateScrollToItemInternal(currentIndex + append)
-                    }
-                    job.invokeOnCompletion {
-                        isChangingProgrammatically = false
-                    }
-                    job.join()
-                }
+                animateScrollToItemInternal(currentIndex + append)
             } else {
-                coroutineScope {
-                    val job = launch {
-                        isChangingProgrammatically = true
-                        animateScrollToItemInternal(index)
-                    }
-                    job.invokeOnCompletion {
-                        isChangingProgrammatically = false
-                    }
-                    job.join()
-                }
+                animateScrollToItemInternal(index)
             }
         }
     }
@@ -143,11 +160,11 @@ class WheelPickerState(
         return if (forwardShift <= -backwardShift) forwardShift to backwardShift else backwardShift to forwardShift
     }
 
-    private suspend fun animateScrollToItemInternal(index: Int) {
+    internal suspend fun animateScrollToItemInternal(index: Int) {
         lazyListState.animateScrollToItem(index)
     }
 
-    companion object {
+    internal companion object {
         fun Saver() = listSaver(
             save = {
                 listOf(it.infinite,  it.currentSelectedItemIndex)
@@ -163,14 +180,21 @@ class WheelPickerState(
 
 }
 
-fun Int.modSign(o: Int): Int = mod(o).let {
+private fun Int.modSign(o: Int): Int = mod(o).let {
     if (it >= 0) it else this - it
 }
 
+/**
+ * Remembers and saves the state of [WheelPickerState] between recreates.
+ *
+ * @param initialIndex The start index of the selected item.
+ * @param infinite Enable infinite mode.
+ * @return instance of [WheelPickerState].
+ */
 @Composable
-fun rememberWheelPickerState(
-    infinite: Boolean = false,
+public fun rememberWheelPickerState(
     initialIndex: Int = 0,
+    infinite: Boolean = false,
 ): WheelPickerState {
 
     return rememberSaveable(

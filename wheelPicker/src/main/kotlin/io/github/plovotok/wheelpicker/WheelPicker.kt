@@ -16,22 +16,18 @@ limitations under the License.
 package io.github.plovotok.wheelpicker
 
 import androidx.compose.foundation.LocalOverscrollFactory
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clipScrollableContainer
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListItemInfo
 import androidx.compose.foundation.lazy.LazyListLayoutInfo
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Stable
@@ -52,13 +48,13 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.launch
+import io.github.plovotok.wheelpicker.WheelPickerDefaults.curveRate
 import io.github.plovotok.wheelpicker.WheelPickerDefaults.pickerOverlay
+import io.github.plovotok.wheelpicker.WheelPickerDefaults.viewportCurveRate
+import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.cos
@@ -66,28 +62,58 @@ import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.math.sin
 
+/**
+ * Overlay (underlay) display configuration for the selection wheel.
+ *
+ * Allows you to customize the appearance of the background and highlighted area.
+ *
+ * @property scrimColor The color of the darkened background outside the active zone.
+ * Default is white with 70% transparency.
+ * @property focusColor The color of the selected (focus) area where the active element is located.
+ * Default is gray with 40% transparency.
+ * @property cornerRadius The radius of the rounded corners of the overlay. Defaul value is 7.dp.
+ * @property horizontalPadding Horizontal overlay padding. The default is 0.dp.
+ * @property verticalPadding Vertical indentation of the overlay. The default is -2.dp (slightly out of bounds).
+ */
 @Stable
-data class OverlayConfiguration(
+public data class OverlayConfiguration(
     val scrimColor: Color = Color.White.copy(alpha = 0.7f),
     val focusColor: Color = Color.Gray.copy(alpha = 0.4f),
-    val cornerRadius: Dp = 8.dp,
-    val horizontalPadding: Dp = 8.dp,
+    val cornerRadius: Dp = 7.dp,
+    val horizontalPadding: Dp = 0.dp,
     val verticalPadding: Dp = -2.dp,
 )
 
+/**
+ * A selection wheel component (similar to a 3D picker) that implements the spinning drum effect.
+ *
+ * Elements are displayed with a 3D perspective: the central element is closer to the user,
+ * and the side ones are rotated and reduced. Supports infinite scrolling, clicking on an element
+ * for quick selection and animated positioning.
+ *
+ * @param T The type of data displayed in the wheel elements.
+ * @param data The list of data from which the wheel elements are formed.
+ * @param key A function that returns a unique key for each item based on its index.
+ * @param itemContent A composable block that displays an item by its index in a list.
+ * @param state The state of the selection wheel, which controls the current position and scrolling.
+ * @param nonFocusedItems Number of visible items (out of focus). Will be adjusted to an odd number.
+ * @param contentAlignment Alignment of the content within each element. The default is centered.
+ * @param itemHeightDp The height of a single item in dp. The default value is from [WheelPickerDefaults.DefaultItemHeight].
+ * @param transformOrigin Transform point for 3D effects. The default is the center.
+ * @param overlay Overlay configuration (background, selection, padding).If 'null', the overlay is not displayed.
+ */
 @Composable
-fun <T> WheelPicker(
+public fun WheelPicker(
     modifier: Modifier = Modifier,
-    data: List<T>,
+    data: List<*>,
     key: (index: Int) -> String? = { null },
     itemContent: @Composable (Int) -> Unit,
     state: WheelPickerState,
     nonFocusedItems: Int = WheelPickerDefaults.DEFAULT_UNFOCUSED_ITEMS_COUNT,
     contentAlignment: Alignment = Alignment.Center,
-    contentPadding: PaddingValues = PaddingValues(horizontal = 8.dp),
     itemHeightDp: Dp = WheelPickerDefaults.DefaultItemHeight,
     transformOrigin: TransformOrigin = TransformOrigin.Center,
-    overlay: OverlayConfiguration = OverlayConfiguration()
+    overlay: OverlayConfiguration? = OverlayConfiguration()
 ) {
 
     // редактируем количество так, чтобы получилось нечетное количество элементов
@@ -150,7 +176,7 @@ fun <T> WheelPicker(
 
                             clickedItem?.let {
                                 scope.launch {
-                                    state.lazyListState.animateScrollToItem(it)
+                                    state.animateScrollToItemInternal(it)
                                 }
                             }
                         }
@@ -169,7 +195,6 @@ fun <T> WheelPicker(
                     ItemWrapper(
                         modifier = Modifier.fillMaxWidth(),
                         itemHeightDp = itemHeightDp,
-                        contentPadding = contentPadding,
                         contentAlignment = contentAlignment,
                         index = index,
                         transformOrigin = transformOrigin,
@@ -189,7 +214,6 @@ fun <T> WheelPicker(
 private fun ItemWrapper(
     modifier: Modifier,
     itemHeightDp: Dp,
-    contentPadding: PaddingValues,
     contentAlignment: Alignment,
     index: Int,
     getLayoutInfo: () -> LazyListLayoutInfo,
@@ -206,11 +230,7 @@ private fun ItemWrapper(
                     transformOrigin = transformOrigin
                 )
             }
-//            .border(
-//                1.dp,
-//                Color.Red
-//            )
-            .padding(contentPadding),
+        ,
         contentAlignment = contentAlignment
     ) {
         content()
@@ -231,10 +251,6 @@ private val VerticalParentScrollConsumer = object : NestedScrollConnection {
     ): Offset = available
 }
 
-// Коэффициент кривой, можно поставить свой
-const val curveRate = 1.0f
-private const val viewportCurveRate = 0.653f //  При этом коэффициенте заполняется весь viewport, получен эмпирически
-
 private fun GraphicsLayerScope.render3DVerticalItemEffect(
     index: Int,
     getLayoutInfo: () -> LazyListLayoutInfo,
@@ -251,7 +267,7 @@ private fun GraphicsLayerScope.render3DVerticalItemEffect(
     val offsetFraction = (itemCenterY - viewportCenterY) / viewportCenterY
 
     // Визуальное сужение элемента (квадратичная функция с коэффициентом создает более плавный эффект)
-    val scale = 1 - (offsetFraction.absoluteValue).pow(2) * 0.1f
+    val scale = 1 - (offsetFraction.absoluteValue).pow(2) * 0.11f
     scaleX = scale
 
     // Не показываем элементы, которые не попадают в viewport
@@ -282,7 +298,7 @@ private fun GraphicsLayerScope.render3DVerticalItemEffect(
         diffY
     }
     // Добавляем перспективу (значение вычислено эмпирически)
-    this.cameraDistance = layoutInfo.viewportSize.height.toFloat() / 22f
+    this.cameraDistance = layoutInfo.viewportSize.height.toFloat() / 25f
     this.transformOrigin = transformOrigin
 }
 
@@ -318,34 +334,4 @@ private fun calculateTapItem(
         // Находим, в границы какого элемента попадает tapOffset
         tapOffset.y in (itemCenterY + diffY - itemHeightVisible / 2) .. (itemCenterY + diffY + itemHeightVisible / 2)
     }?.index // возвращаем индекс элемента
-}
-
-
-@Preview
-@Composable
-private fun WheelPickerPreview() {
-    val list = buildList {
-        repeat(10) {
-            add("Item ${(it + 1)}")
-        }
-    }
-    Column(
-        modifier = Modifier.background(Color.White)
-    ) {
-        WheelPicker(
-            data = list,
-            itemContent = {
-                Text(
-                    text = list[it],
-                    color = Color.Black,
-                    fontSize = 18.sp
-                )
-            },
-            itemHeightDp = 50.dp,
-            nonFocusedItems = 10,
-            state = rememberWheelPickerState(
-                initialIndex = 4
-            )
-        )
-    }
 }

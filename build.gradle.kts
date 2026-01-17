@@ -6,4 +6,5 @@ plugins {
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.vanniktech.publishing) apply false
     alias(libs.plugins.nmcp) apply false
+    alias(libs.plugins.kotlin.serialization) apply false
 }

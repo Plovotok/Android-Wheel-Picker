@@ -2,7 +2,7 @@
 Example of an iOS implementation UIPickerView in JetpackCompose
 
 ## Preview
-<img src="/assets/preview_screenshot.png" width="300" /> <img src="/assets/preview.gif" width="300" />
+<img src="/assets/preview_screenshot.png" width="300" /> <img src="/assets/preview.gif" width="300" /> <img src="/assets/date_time.gif" width="300" />
 
 
 ## Features
@@ -32,6 +32,79 @@ wheel-picker = { module = "io.github.plovotok:android-wheel-picker", version.ref
 dependencies {
     implementation(libs.wheel.picker)
 }
+```
+
+## Examples
+
+### Single picker
+
+```kotlin
+val list = remember {
+    buildList {
+        repeat(10) {
+            add("Item ${it + 1}")
+        }
+    }
+}
+val pickerState = rememberWheelPickerState(
+    initialIndex = 4,
+    infinite = false
+)
+
+WheelPicker(
+    data = list,
+    state = pickerState,
+    overlay = OverlayConfiguration(
+        scrimColor = MaterialTheme.colorScheme.background.copy(alpha = 0.7f),
+    ),
+    itemContent = {
+        Text(
+            text = list[it],
+            fontSize = 18.sp,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontSize = 18.sp,
+                textMotion = TextMotion.Animated
+            ),
+            color = MaterialTheme.colorScheme.onBackground,
+        )
+    }
+)
+```
+
+### Multi picker
+
+```kotlin
+val list = buildList {
+            repeat(10) {
+                add("Item ${(it + 1)}")
+            }
+        }
+        val state1 = rememberWheelPickerState(2)
+        val state2 = rememberWheelPickerState(3)
+        val state3 = rememberWheelPickerState(4)
+
+MultiWheelPicker(
+    wheelCount = 3,
+    state = {
+        when (it) {
+            0 -> state1
+            1 -> state2
+            else -> state3
+        }
+    },
+    overlay = OverlayConfiguration(
+        scrimColor = MaterialTheme.colorScheme.background.copy(alpha = 0.7f),
+    ),
+    itemHeightDp = 38.dp,
+    data = { list },
+    itemContent = { _, listIdex ->
+        Text(
+            text = list[listIdex],
+            color = MaterialTheme.colorScheme.onBackground,
+            fontSize = 20.sp
+        )
+    },
+)
 ```
 
 
