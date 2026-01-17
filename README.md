@@ -2,7 +2,7 @@
 Example of an iOS implementation UIPickerView in JetpackCompose
 
 ## Preview
-<img src="/assets/preview_screenshot.png" width="300" /> <img src="/assets/preview.gif" width="300" />
+<img src="/assets/preview_screenshot.png" width="300" /> <img src="/assets/preview.gif" width="300" /> <img src="/assets/date_time.gif" width="300" />
 
 
 ## Features
