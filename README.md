@@ -13,7 +13,7 @@ Example of an iOS implementation UIPickerView in JetpackCompose
 - Programmatically selectable index
 
 ## Latest Release
-[![Latest Release](https://maven-badges.sml.io/sonatype-central/io.github.plovotok/android-wheel-picker/badge.svg?subject=Latest%20Release&color=blue)](https://maven-badges.sml.io/sonatype-central/io.github.plovotok/android-wheel-picker/)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.plovotok/android-wheel-picker)](https://search.maven.org/search?q=g:io.github.plovotok)
 
 ## Usage
 `libs.versions.toml` file:
