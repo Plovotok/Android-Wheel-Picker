@@ -12,6 +12,9 @@ Example of an iOS implementation UIPickerView in JetpackCompose
 - Observable state
 - Programmatically selectable index
 
+## Implementation
+Implementation steps are described in my [article](https://habr.com/ru/articles/986270/).
+
 ## Latest Release
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.plovotok/android-wheel-picker?color=green)](https://search.maven.org/search?q=g:io.github.plovotok)
 
