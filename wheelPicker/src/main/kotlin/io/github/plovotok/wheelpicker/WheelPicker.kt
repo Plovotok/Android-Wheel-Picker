@@ -15,6 +15,7 @@ limitations under the License.
  */
 package io.github.plovotok.wheelpicker
 
+import android.util.Log
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.clipScrollableContainer
 import androidx.compose.foundation.gestures.Orientation
@@ -113,7 +114,7 @@ public fun WheelPicker(
     contentAlignment: Alignment = Alignment.Center,
     itemHeightDp: Dp = WheelPickerDefaults.DefaultItemHeight,
     transformOrigin: TransformOrigin = TransformOrigin.Center,
-    overlay: OverlayConfiguration? = OverlayConfiguration()
+    overlay: OverlayConfiguration? = OverlayConfiguration(),
 ) {
 
     // редактируем количество так, чтобы получилось нечетное количество элементов
@@ -219,7 +220,7 @@ private fun ItemWrapper(
     index: Int,
     getLayoutInfo: () -> LazyListLayoutInfo,
     transformOrigin: TransformOrigin = TransformOrigin.Center,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     Box(
         modifier = modifier
@@ -230,8 +231,7 @@ private fun ItemWrapper(
                     getLayoutInfo = getLayoutInfo,
                     transformOrigin = transformOrigin
                 )
-            }
-        ,
+            },
         contentAlignment = contentAlignment
     ) {
         content()
@@ -310,7 +310,7 @@ private fun getItemCenter(itemInfo: LazyListItemInfo): Float {
 
 private fun calculateTapItem(
     tapOffset: Offset,
-    getLayoutInfo: () -> LazyListLayoutInfo
+    getLayoutInfo: () -> LazyListLayoutInfo,
 ): Int? {
     val layoutInfo = getLayoutInfo()
 
@@ -318,12 +318,12 @@ private fun calculateTapItem(
     val viewportCenterY = layoutInfo.viewportSize.height / 2F
 
     // Радиус колеса
-    val r = (2f * viewportCenterY  / curveRate / Math.PI).toFloat()
+    val r = (2f * viewportCenterY / curveRate / Math.PI).toFloat()
 
     // Высота от центра колеса до точки касания
-    val h = viewportCenterY - tapOffset.y
+    val h = (viewportCenterY - tapOffset.y)
 
-    val tapFraction = Math.toDegrees(-asin(h / r).toDouble()) / 90
+    val tapFraction = Math.toDegrees(-asin((h / r).coerceIn(-1f, 1f)).toDouble()) / 90
 
     // Точка касания относительно реального положения элементов
     val tapY = (viewportCenterY * (tapFraction + 1)).toInt()
@@ -332,6 +332,8 @@ private fun calculateTapItem(
 
     var left: Pair<Int, IntRange> = getItemBounds(0, layoutInfo)
     var right: Pair<Int, IntRange> = getItemBounds(layoutInfo.visibleItemsInfo.size - 1, layoutInfo)
+
+    if (tapY < left.second.first || tapY > right.second.last) return null // Не попали ни в какой элемент
 
     while (left.first <= right.first) {
 
@@ -346,12 +348,14 @@ private fun calculateTapItem(
                 if (newIndex < 0) break // Не попали ни в какой элемент
                 right = getItemBounds(midBounds.first - 1, layoutInfo)
             }
+
             tapY > midBounds.second.last -> {
                 val newIndex = midBounds.first + 1
                 if (newIndex >= layoutInfo.visibleItemsInfo.size) break // Не попали ни в какой элемент
                 left = getItemBounds(midBounds.first + 1, layoutInfo)
             }
-            midBounds.second.contains(tapY) -> {
+
+            midBounds.second.contains(tapY) -> { // Попали в элемент
                 return layoutInfo.visibleItemsInfo[midBounds.first].index
             }
         }
@@ -361,6 +365,7 @@ private fun calculateTapItem(
 
 private fun getItemBounds(index: Int, layoutInfo: LazyListLayoutInfo): Pair<Int, IntRange> {
     val item = layoutInfo.visibleItemsInfo[index]
-    val bounds = layoutInfo.beforeContentPadding + item.offset..layoutInfo.beforeContentPadding + item.offset + item.size
+    val bounds =
+        layoutInfo.beforeContentPadding + item.offset..layoutInfo.beforeContentPadding + item.offset + item.size
     return index to bounds
 }
