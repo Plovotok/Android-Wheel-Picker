@@ -60,9 +60,6 @@ fun WheelTimePicker(
             }
         },
         itemHeightDp = 34.dp,
-        wheelConfig = {
-            WheelConfig(1f)
-        },
         overlay = overlay,
         contentAlignment = {
             if (it == 0) {

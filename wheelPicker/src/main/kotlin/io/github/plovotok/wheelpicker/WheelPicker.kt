@@ -57,7 +57,7 @@ import io.github.plovotok.wheelpicker.WheelPickerDefaults.viewportCurveRate
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.absoluteValue
-import kotlin.math.cos
+import kotlin.math.asin
 import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.math.sin
@@ -165,8 +165,9 @@ public fun WheelPicker(
                             overlay = overlay
                         )
                     }
-                    .pointerInput(Unit) {
+                    .pointerInput(state.lazyListState) {
                         detectTapGestures {
+                            if (state.isScrollInProgress) return@detectTapGestures
                             val clickedItem = calculateTapItem(
                                 tapOffset = it,
                                 getLayoutInfo = {
@@ -312,26 +313,54 @@ private fun calculateTapItem(
     getLayoutInfo: () -> LazyListLayoutInfo
 ): Int? {
     val layoutInfo = getLayoutInfo()
+
+    // Центр колеса
     val viewportCenterY = layoutInfo.viewportSize.height / 2F
 
-    return layoutInfo.visibleItemsInfo.find {
-        val itemCenterY = getItemCenter(it) + layoutInfo.beforeContentPadding
+    // Радиус колеса
+    val r = (2f * viewportCenterY  / curveRate / Math.PI).toFloat()
 
-        val offsetFraction = (itemCenterY - viewportCenterY) / viewportCenterY
+    // Высота от центра колеса до точки касания
+    val h = viewportCenterY - tapOffset.y
 
-        val r = (2f * viewportCenterY  / curveRate / Math.PI).toFloat()
+    val tapFraction = Math.toDegrees(-asin(h / r).toDouble()) / 90
 
-        val h =
-            (sin(Math.toRadians(offsetFraction.absoluteValue * 90.0)) * r).toFloat()
-        val diffY = if (offsetFraction < 0) {
-            (viewportCenterY - h.absoluteValue) - itemCenterY.absoluteValue
-        } else {
-            (viewportCenterY + h.absoluteValue) - itemCenterY.absoluteValue
+    // Точка касания относительно реального положения элементов
+    val tapY = (viewportCenterY * (tapFraction + 1)).toInt()
+
+    // Бинарный поиск
+
+    var left: Pair<Int, IntRange> = getItemBounds(0, layoutInfo)
+    var right: Pair<Int, IntRange> = getItemBounds(layoutInfo.visibleItemsInfo.size - 1, layoutInfo)
+
+    while (left.first <= right.first) {
+
+        // центральный элемент
+        val midBounds = (left.first + (right.first - left.first) / 2).let {
+            getItemBounds(it, layoutInfo)
         }
-        // высота элемента, которую видит пользователь
-        val itemHeightVisible = it.size * cos(Math.toRadians(offsetFraction.absoluteValue * 90.0))
 
-        // Находим, в границы какого элемента попадает tapOffset
-        tapOffset.y in (itemCenterY + diffY - itemHeightVisible / 2) .. (itemCenterY + diffY + itemHeightVisible / 2)
-    }?.index // возвращаем индекс элемента
+        when {
+            tapY < midBounds.second.first -> {
+                val newIndex = midBounds.first - 1
+                if (newIndex < 0) break // Не попали ни в какой элемент
+                right = getItemBounds(midBounds.first - 1, layoutInfo)
+            }
+            tapY > midBounds.second.last -> {
+                val newIndex = midBounds.first + 1
+                if (newIndex >= layoutInfo.visibleItemsInfo.size) break // Не попали ни в какой элемент
+                left = getItemBounds(midBounds.first + 1, layoutInfo)
+            }
+            midBounds.second.contains(tapY) -> {
+                return layoutInfo.visibleItemsInfo[midBounds.first].index
+            }
+        }
+    }
+    return null
+}
+
+private fun getItemBounds(index: Int, layoutInfo: LazyListLayoutInfo): Pair<Int, IntRange> {
+    val item = layoutInfo.visibleItemsInfo[index]
+    val bounds = layoutInfo.beforeContentPadding + item.offset..layoutInfo.beforeContentPadding + item.offset + item.size
+    return index to bounds
 }
