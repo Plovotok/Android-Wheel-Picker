@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.plovotok.wheelpicker.MultiWheelPicker
 import io.github.plovotok.wheelpicker.OverlayConfiguration
-import io.github.plovotok.wheelpicker.WheelConfig
 import io.github.plovotok.wheelpicker.WheelPickerState
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.joinAll

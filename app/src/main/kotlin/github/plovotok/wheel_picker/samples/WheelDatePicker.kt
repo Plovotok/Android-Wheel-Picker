@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.LocalTextStyle
@@ -30,7 +29,6 @@ import androidx.compose.ui.unit.sp
 import github.plovotok.wheel_picker.ui.utils.debounced
 import io.github.plovotok.wheelpicker.MultiWheelPicker
 import io.github.plovotok.wheelpicker.OverlayConfiguration
-import io.github.plovotok.wheelpicker.WheelConfig
 import io.github.plovotok.wheelpicker.WheelPickerState
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.joinAll
