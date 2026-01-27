@@ -52,7 +52,7 @@ fun MultiPickerScreen(
                         else -> state3
                     }
                 },
-                overlay = OverlayConfiguration(
+                overlay = OverlayConfiguration.create(
                     scrimColor = MaterialTheme.colorScheme.background.copy(alpha = 0.7f),
                 ),
                 itemHeightDp = 38.dp,

@@ -44,7 +44,6 @@ fun AppNavigation() {
         predictivePopTransitionSpec = {
             fadeIn(initialAlpha = 0.7f) + slideInHorizontally { -it * 3 / 4 } togetherWith
                     slideOutHorizontally(targetOffsetX = { it })
-
         },
         entryProvider = { key ->
             when (key) {

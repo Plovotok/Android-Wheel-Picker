@@ -40,7 +40,6 @@ import github.plovotok.wheel_picker.samples.rememberTimePickerState
 import github.plovotok.wheel_picker.samples.toStringWithLeadingZero
 import github.plovotok.wheel_picker.ui.components.icons.BackIcon
 import github.plovotok.wheel_picker.ui.utils.useDebounce
-import io.github.plovotok.wheelpicker.OverlayConfiguration
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -120,9 +119,7 @@ fun DateAndTimeScreen(
 
                 WheelDatePicker(
                     state = datePickerState,
-                    overlay = OverlayConfiguration(
-                        scrimColor = MaterialTheme.colorScheme.background.copy(alpha = 0.7f),
-                    ),
+                    scrimColor = MaterialTheme.colorScheme.background.copy(alpha = 0.7f),
                 )
 
                 Button(
@@ -180,9 +177,7 @@ fun DateAndTimeScreen(
             ) {
                 WheelTimePicker(
                     state = timePickerState,
-                    overlay = OverlayConfiguration(
-                        scrimColor = MaterialTheme.colorScheme.background.copy(alpha = 0.7f),
-                    ),
+                    scrimColor = MaterialTheme.colorScheme.background.copy(alpha = 0.7f),
                 )
 
                 Button(

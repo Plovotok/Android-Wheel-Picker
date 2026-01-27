@@ -2,8 +2,8 @@ package github.plovotok.wheel_picker.samples
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.LocalTextStyle
@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.sp
 import github.plovotok.wheel_picker.ui.utils.debounced
 import io.github.plovotok.wheelpicker.MultiWheelPicker
 import io.github.plovotok.wheelpicker.OverlayConfiguration
-import io.github.plovotok.wheelpicker.WheelConfig
 import io.github.plovotok.wheelpicker.WheelPickerState
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.joinAll
@@ -62,7 +61,7 @@ fun rememberDatePickerState(
 fun WheelDatePicker(
     state: WheelDatePickerState,
     modifier: Modifier = Modifier,
-    overlay: OverlayConfiguration? = OverlayConfiguration(),
+    scrimColor: Color,
     languageTag: String = Locale.getDefault().language,
 ) {
 
@@ -96,74 +95,75 @@ fun WheelDatePicker(
         }
     }
 
-    MultiWheelPicker(
-        data = {
-            when (it) {
-                0 -> WheelDatePickerState.daysList
-                1 -> monthList
-                else -> WheelDatePickerState.yearList
-            }
-        },
-        overlay = overlay,
-        state = {
-            when (it) {
-                0 -> state.dayState
-                1 -> state.monthState
-                else -> state.yearState
-            }
-        },
-        modifier = modifier.fillMaxWidth(),
-        wheelConfig = {
-            when (it) {
-                0 -> {
-                    WheelConfig(weight = 3f,)
-                }
+    BoxWithConstraints(
+        modifier = modifier
+    ) {
 
-                1 -> {
-                    WheelConfig(weight = 6f)
-                }
+        val width = maxWidth
 
-                else -> {
-                    WheelConfig(weight = 4f)
+        MultiWheelPicker(
+            data = {
+                when (it) {
+                    0 -> WheelDatePickerState.daysList
+                    1 -> monthList
+                    else -> WheelDatePickerState.yearList
                 }
-            }
-        },
-        contentAlignment = {
-            when (it) {
-                0 -> Alignment.CenterEnd
-                else -> Alignment.CenterStart
-            }
-        },
-        itemHeightDp = 34.dp,
-        itemContent = { wheelIndex, itemIndex ->
-            val text = when (wheelIndex) {
-                0 -> WheelDatePickerState.daysList[itemIndex]
-                1 -> monthList[itemIndex]
-                else -> WheelDatePickerState.yearList[itemIndex]
-            }
-            val itemModifier = Modifier
-                .padding(
-                    horizontal = if (wheelIndex == 1) 8.dp else 16.dp
-                )
-            if (wheelIndex == 0) {
-                Text(
-                    text = text,
-                    style = textStyle,
-                    modifier = itemModifier.graphicsLayer {
-                        alpha = if (itemIndex + 1 <= debouncedYearMonth.numberOfDays) 1f else 0.5f
-                    }
-                )
-            } else {
-                Text(
-                    text = text,
-                    style = textStyle,
-                    modifier = itemModifier
-                )
-            }
-        },
-        nonFocusedItems = 8,
-        wheelCount = 3
-    )
+            },
+            overlay = OverlayConfiguration.create(
+                scrimColor = scrimColor,
+                selectionScale = 1.08f,
+                overlayTranslate = {
+                    if (it == 0) 10.dp else if (it == 1) 6.dp else -8.dp
+                }
+            ),
+            state = {
+                when (it) {
+                    0 -> state.dayState
+                    1 -> state.monthState
+                    else -> state.yearState
+                }
+            },
+            wheelConfig = {
+                WheelDatePickerDefaults.config(it, width)
+            },
+            contentAlignment = {
+                when (it) {
+                    0 -> Alignment.CenterEnd
+                    else -> Alignment.CenterStart
+                }
+            },
+            itemHeightDp = 34.dp,
+            itemContent = { wheelIndex, itemIndex ->
+                val text = when (wheelIndex) {
+                    0 -> WheelDatePickerState.daysList[itemIndex]
+                    1 -> monthList[itemIndex]
+                    else -> WheelDatePickerState.yearList[itemIndex]
+                }
+                val itemModifier = Modifier
+                    .padding(
+                        horizontal = if (wheelIndex == 1) 8.dp else 16.dp
+                    )
+                if (wheelIndex == 0) {
+                    Text(
+                        text = text,
+                        style = textStyle,
+                        modifier = itemModifier.graphicsLayer {
+                            alpha =
+                                if (itemIndex + 1 <= debouncedYearMonth.numberOfDays) 1f else 0.5f
+                        }
+                    )
+                } else {
+                    Text(
+                        text = text,
+                        style = textStyle,
+                        modifier = itemModifier
+                    )
+                }
+            },
+            nonFocusedItems = 8,
+            wheelCount = 3
+        )
+    }
 }
 
 @Composable
@@ -275,7 +275,8 @@ private fun WheelDatePickerPreview() {
     ) {
         WheelDatePicker(
             state = rememberDatePickerState(),
-            modifier = Modifier.width(300.dp)
+            modifier = Modifier.width(300.dp),
+            scrimColor = Color.White.copy(alpha = 0.7f)
         )
     }
 }
