@@ -120,9 +120,7 @@ fun DateAndTimeScreen(
 
                 WheelDatePicker(
                     state = datePickerState,
-                    overlay = OverlayConfiguration(
-                        scrimColor = MaterialTheme.colorScheme.background.copy(alpha = 0.7f),
-                    ),
+                    scrimColor = MaterialTheme.colorScheme.background.copy(alpha = 0.7f),
                 )
 
                 Button(
@@ -180,9 +178,7 @@ fun DateAndTimeScreen(
             ) {
                 WheelTimePicker(
                     state = timePickerState,
-                    overlay = OverlayConfiguration(
-                        scrimColor = MaterialTheme.colorScheme.background.copy(alpha = 0.7f),
-                    ),
+                    scrimColor = MaterialTheme.colorScheme.background.copy(alpha = 0.7f),
                 )
 
                 Button(

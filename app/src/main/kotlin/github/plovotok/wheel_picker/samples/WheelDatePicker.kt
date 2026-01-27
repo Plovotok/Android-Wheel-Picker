@@ -63,7 +63,7 @@ fun rememberDatePickerState(
 fun WheelDatePicker(
     state: WheelDatePickerState,
     modifier: Modifier = Modifier,
-    overlay: OverlayConfiguration? = OverlayConfiguration(),
+    scrimColor: Color,
     languageTag: String = Locale.getDefault().language,
 ) {
 
@@ -111,7 +111,13 @@ fun WheelDatePicker(
                     else -> WheelDatePickerState.yearList
                 }
             },
-            overlay = overlay,
+            overlay = OverlayConfiguration.create(
+                scrimColor = scrimColor,
+                selectionScale = 1.08f,
+                overlayTranslate = {
+                    if (it == 0) 10.dp else if (it == 1) 6.dp else -8.dp
+                }
+            ),
             state = {
                 when (it) {
                     0 -> state.dayState
@@ -271,7 +277,8 @@ private fun WheelDatePickerPreview() {
     ) {
         WheelDatePicker(
             state = rememberDatePickerState(),
-            modifier = Modifier.width(300.dp)
+            modifier = Modifier.width(300.dp),
+            scrimColor = Color.White.copy(alpha = 0.7f)
         )
     }
 }

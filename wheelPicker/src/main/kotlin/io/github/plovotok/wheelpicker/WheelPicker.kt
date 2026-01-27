@@ -15,7 +15,6 @@ limitations under the License.
  */
 package io.github.plovotok.wheelpicker
 
-import android.util.Log
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.clipScrollableContainer
 import androidx.compose.foundation.gestures.Orientation
@@ -32,6 +31,7 @@ import androidx.compose.foundation.lazy.LazyListLayoutInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -63,6 +63,8 @@ import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.math.sin
 
+internal val LocalWheelIndex = compositionLocalOf { 0 }
+
 /**
  * Overlay (underlay) display configuration for the selection wheel.
  *
@@ -77,13 +79,46 @@ import kotlin.math.sin
  * @property verticalPadding Vertical indentation of the overlay. The default is -2.dp (slightly out of bounds).
  */
 @Stable
-public data class OverlayConfiguration(
+public data class OverlayConfiguration internal constructor(
     val scrimColor: Color = Color.White.copy(alpha = 0.7f),
     val focusColor: Color = Color.Gray.copy(alpha = 0.4f),
     val cornerRadius: Dp = 7.dp,
     val horizontalPadding: Dp = 0.dp,
     val verticalPadding: Dp = -2.dp,
-)
+    val selectionScale: Float = 1.0f,
+    val overlayTranslate: (wheelIndex: Int) -> Dp = { 0.dp },
+
+    internal val clipStart: Boolean,
+    internal val clipEnd: Boolean,
+    internal val isWheelItem: Boolean
+) {
+
+    public companion object {
+        public fun create(
+            scrimColor: Color = Color.White.copy(alpha = 0.7f),
+            focusColor: Color = Color.Gray.copy(alpha = 0.4f),
+            cornerRadius: Dp = 7.dp,
+            horizontalPadding: Dp = 0.dp,
+            verticalPadding: Dp = -2.dp,
+            selectionScale: Float = 1.0f,
+            overlayTranslate: (Int) -> Dp = { 0.dp }
+        ): OverlayConfiguration {
+
+            return OverlayConfiguration(
+                scrimColor = scrimColor,
+                focusColor = focusColor,
+                cornerRadius = cornerRadius,
+                horizontalPadding = horizontalPadding,
+                verticalPadding = verticalPadding,
+                selectionScale = selectionScale,
+                overlayTranslate = overlayTranslate,
+                clipStart = true,
+                clipEnd = true,
+                isWheelItem = false
+            )
+        }
+    }
+}
 
 /**
  * A selection wheel component (similar to a 3D picker) that implements the spinning drum effect.
@@ -114,7 +149,7 @@ public fun WheelPicker(
     contentAlignment: Alignment = Alignment.Center,
     itemHeightDp: Dp = WheelPickerDefaults.DefaultItemHeight,
     transformOrigin: TransformOrigin = TransformOrigin.Center,
-    overlay: OverlayConfiguration? = OverlayConfiguration(),
+    overlay: OverlayConfiguration = OverlayConfiguration.create(),
 ) {
 
     // редактируем количество так, чтобы получилось нечетное количество элементов
@@ -146,6 +181,8 @@ public fun WheelPicker(
         with(density) { edgeOffsetPx.absoluteValue.toDp() }
     }
 
+    val index = LocalWheelIndex.current
+
     Box(
         modifier = modifier
             .height(height / (curveRate / viewportCurveRate))
@@ -163,7 +200,9 @@ public fun WheelPicker(
                         pickerOverlay(
                             edgeOffsetYPx = edgeOffsetPx,
                             itemHeightPx = itemHeightPx,
-                            overlay = overlay
+                            overlay = overlay,
+                            transformOrigin = transformOrigin,
+                            wheelIndex = index
                         )
                     }
                     .pointerInput(state.lazyListState) {
