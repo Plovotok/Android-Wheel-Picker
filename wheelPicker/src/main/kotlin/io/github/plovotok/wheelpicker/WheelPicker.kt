@@ -31,6 +31,7 @@ import androidx.compose.foundation.lazy.LazyListLayoutInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -57,10 +58,12 @@ import io.github.plovotok.wheelpicker.WheelPickerDefaults.viewportCurveRate
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.absoluteValue
-import kotlin.math.cos
+import kotlin.math.asin
 import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.math.sin
+
+internal val LocalWheelIndex = compositionLocalOf { 0 }
 
 /**
  * Overlay (underlay) display configuration for the selection wheel.
@@ -76,13 +79,46 @@ import kotlin.math.sin
  * @property verticalPadding Vertical indentation of the overlay. The default is -2.dp (slightly out of bounds).
  */
 @Stable
-public data class OverlayConfiguration(
+public data class OverlayConfiguration internal constructor(
     val scrimColor: Color = Color.White.copy(alpha = 0.7f),
     val focusColor: Color = Color.Gray.copy(alpha = 0.4f),
     val cornerRadius: Dp = 7.dp,
     val horizontalPadding: Dp = 0.dp,
     val verticalPadding: Dp = -2.dp,
-)
+    val selectionScale: Float = 1.0f,
+    val overlayTranslate: (wheelIndex: Int) -> Dp = { 0.dp },
+
+    internal val clipStart: Boolean,
+    internal val clipEnd: Boolean,
+    internal val isWheelItem: Boolean
+) {
+
+    public companion object {
+        public fun create(
+            scrimColor: Color = Color.White.copy(alpha = 0.7f),
+            focusColor: Color = Color.Gray.copy(alpha = 0.4f),
+            cornerRadius: Dp = 7.dp,
+            horizontalPadding: Dp = 0.dp,
+            verticalPadding: Dp = -2.dp,
+            selectionScale: Float = 1.0f,
+            overlayTranslate: (Int) -> Dp = { 0.dp }
+        ): OverlayConfiguration {
+
+            return OverlayConfiguration(
+                scrimColor = scrimColor,
+                focusColor = focusColor,
+                cornerRadius = cornerRadius,
+                horizontalPadding = horizontalPadding,
+                verticalPadding = verticalPadding,
+                selectionScale = selectionScale,
+                overlayTranslate = overlayTranslate,
+                clipStart = true,
+                clipEnd = true,
+                isWheelItem = false
+            )
+        }
+    }
+}
 
 /**
  * A selection wheel component (similar to a 3D picker) that implements the spinning drum effect.
@@ -113,7 +149,7 @@ public fun WheelPicker(
     contentAlignment: Alignment = Alignment.Center,
     itemHeightDp: Dp = WheelPickerDefaults.DefaultItemHeight,
     transformOrigin: TransformOrigin = TransformOrigin.Center,
-    overlay: OverlayConfiguration? = OverlayConfiguration()
+    overlay: OverlayConfiguration = OverlayConfiguration.create(),
 ) {
 
     // редактируем количество так, чтобы получилось нечетное количество элементов
@@ -145,6 +181,8 @@ public fun WheelPicker(
         with(density) { edgeOffsetPx.absoluteValue.toDp() }
     }
 
+    val index = LocalWheelIndex.current
+
     Box(
         modifier = modifier
             .height(height / (curveRate / viewportCurveRate))
@@ -162,11 +200,14 @@ public fun WheelPicker(
                         pickerOverlay(
                             edgeOffsetYPx = edgeOffsetPx,
                             itemHeightPx = itemHeightPx,
-                            overlay = overlay
+                            overlay = overlay,
+                            transformOrigin = transformOrigin,
+                            wheelIndex = index
                         )
                     }
-                    .pointerInput(Unit) {
+                    .pointerInput(state.lazyListState) {
                         detectTapGestures {
+                            if (state.isScrollInProgress) return@detectTapGestures
                             val clickedItem = calculateTapItem(
                                 tapOffset = it,
                                 getLayoutInfo = {
@@ -218,7 +259,7 @@ private fun ItemWrapper(
     index: Int,
     getLayoutInfo: () -> LazyListLayoutInfo,
     transformOrigin: TransformOrigin = TransformOrigin.Center,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     Box(
         modifier = modifier
@@ -229,8 +270,7 @@ private fun ItemWrapper(
                     getLayoutInfo = getLayoutInfo,
                     transformOrigin = transformOrigin
                 )
-            }
-        ,
+            },
         contentAlignment = contentAlignment
     ) {
         content()
@@ -309,29 +349,62 @@ private fun getItemCenter(itemInfo: LazyListItemInfo): Float {
 
 private fun calculateTapItem(
     tapOffset: Offset,
-    getLayoutInfo: () -> LazyListLayoutInfo
+    getLayoutInfo: () -> LazyListLayoutInfo,
 ): Int? {
     val layoutInfo = getLayoutInfo()
+
+    // Центр колеса
     val viewportCenterY = layoutInfo.viewportSize.height / 2F
 
-    return layoutInfo.visibleItemsInfo.find {
-        val itemCenterY = getItemCenter(it) + layoutInfo.beforeContentPadding
+    // Радиус колеса
+    val r = (2f * viewportCenterY / curveRate / Math.PI).toFloat()
 
-        val offsetFraction = (itemCenterY - viewportCenterY) / viewportCenterY
+    // Высота от центра колеса до точки касания
+    val h = (viewportCenterY - tapOffset.y)
 
-        val r = (2f * viewportCenterY  / curveRate / Math.PI).toFloat()
+    val tapFraction = Math.toDegrees(-asin((h / r).coerceIn(-1f, 1f)).toDouble()) / 90
 
-        val h =
-            (sin(Math.toRadians(offsetFraction.absoluteValue * 90.0)) * r).toFloat()
-        val diffY = if (offsetFraction < 0) {
-            (viewportCenterY - h.absoluteValue) - itemCenterY.absoluteValue
-        } else {
-            (viewportCenterY + h.absoluteValue) - itemCenterY.absoluteValue
+    // Точка касания относительно реального положения элементов
+    val tapY = (viewportCenterY * (tapFraction + 1)).toInt()
+
+    // Бинарный поиск
+
+    var left: Pair<Int, IntRange> = getItemBounds(0, layoutInfo)
+    var right: Pair<Int, IntRange> = getItemBounds(layoutInfo.visibleItemsInfo.size - 1, layoutInfo)
+
+    if (tapY < left.second.first || tapY > right.second.last) return null // Не попали ни в какой элемент
+
+    while (left.first <= right.first) {
+
+        // центральный элемент
+        val midBounds = (left.first + (right.first - left.first) / 2).let {
+            getItemBounds(it, layoutInfo)
         }
-        // высота элемента, которую видит пользователь
-        val itemHeightVisible = it.size * cos(Math.toRadians(offsetFraction.absoluteValue * 90.0))
 
-        // Находим, в границы какого элемента попадает tapOffset
-        tapOffset.y in (itemCenterY + diffY - itemHeightVisible / 2) .. (itemCenterY + diffY + itemHeightVisible / 2)
-    }?.index // возвращаем индекс элемента
+        when {
+            tapY < midBounds.second.first -> {
+                val newIndex = midBounds.first - 1
+                if (newIndex < 0) break // Не попали ни в какой элемент
+                right = getItemBounds(midBounds.first - 1, layoutInfo)
+            }
+
+            tapY > midBounds.second.last -> {
+                val newIndex = midBounds.first + 1
+                if (newIndex >= layoutInfo.visibleItemsInfo.size) break // Не попали ни в какой элемент
+                left = getItemBounds(midBounds.first + 1, layoutInfo)
+            }
+
+            midBounds.second.contains(tapY) -> { // Попали в элемент
+                return layoutInfo.visibleItemsInfo[midBounds.first].index
+            }
+        }
+    }
+    return null
+}
+
+private fun getItemBounds(index: Int, layoutInfo: LazyListLayoutInfo): Pair<Int, IntRange> {
+    val item = layoutInfo.visibleItemsInfo[index]
+    val bounds =
+        layoutInfo.beforeContentPadding + item.offset..layoutInfo.beforeContentPadding + item.offset + item.size
+    return index to bounds
 }

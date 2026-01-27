@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -33,6 +34,7 @@ import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import io.github.plovotok.wheelpicker.WheelPickerDefaults.curveRate
 import io.github.plovotok.wheelpicker.WheelPickerDefaults.pickerOverlay
 import io.github.plovotok.wheelpicker.WheelPickerDefaults.viewportCurveRate
@@ -85,7 +87,7 @@ public fun MultiWheelPicker(
     itemContent: @Composable (wheelIndex: Int, index: Int)  -> Unit,
     state: (wheelIndex: Int) -> WheelPickerState,
     contentAlignment: (wheelIndex: Int) -> Alignment = { Alignment.Center },
-    overlay: OverlayConfiguration? = OverlayConfiguration(),
+    overlay: OverlayConfiguration = OverlayConfiguration.create(),
 ) {
     require(wheelCount > 0) {
         "wheelCount should be 1 at least!"
@@ -107,7 +109,12 @@ public fun MultiWheelPicker(
                 pickerOverlay(
                     edgeOffsetYPx = (size.height - itemHeightPx) / 2,
                     itemHeightPx = itemHeightPx,
-                    overlay = overlay
+                    overlay = overlay.copy(
+                        isWheelItem = false,
+                        overlayTranslate = { 0.dp}
+                    ),
+                    transformOrigin = TransformOrigin(0.5f, 0.5f),
+                    wheelIndex = -1
                 )
             }
             .clipScrollableContainer(orientation = Orientation.Vertical)
@@ -142,24 +149,32 @@ public fun MultiWheelPicker(
                 // Центр текущего колеса
                 val currentCenter = previousWidth + wheelWidth / 2
 
-                WheelPicker(
-                    data = data(wheelIndex),
-                    state = state(wheelIndex),
-                    itemHeightDp = itemHeightDp,
-                    contentAlignment = contentAlignment(wheelIndex),
-                    nonFocusedItems = nonFocusedItems,
-                    itemContent = {
-                        itemContent(wheelIndex, it)
-                    },
-                    transformOrigin = TransformOrigin(
-                        pivotFractionX = 0.5f - (currentCenter - centerW) / wheelWidth,
-                        pivotFractionY = 0.5f
-                    ),
-                    overlay = null,
-                    modifier = Modifier
-                        .weight(weight)
-                        .fillMaxHeight()
-                )
+                CompositionLocalProvider(
+                    LocalWheelIndex provides wheelIndex
+                ) {
+                    WheelPicker(
+                        data = data(wheelIndex),
+                        state = state(wheelIndex),
+                        itemHeightDp = itemHeightDp,
+                        contentAlignment = contentAlignment(wheelIndex),
+                        nonFocusedItems = nonFocusedItems,
+                        itemContent = {
+                            itemContent(wheelIndex, it)
+                        },
+                        transformOrigin = TransformOrigin(
+                            pivotFractionX = 0.5f - (currentCenter - centerW) / wheelWidth,
+                            pivotFractionY = 0.5f
+                        ),
+                        overlay = overlay.copy(
+                            clipStart = wheelIndex == 0,
+                            clipEnd = wheelIndex == wheelCount - 1,
+                            isWheelItem = true,
+                        ),
+                        modifier = Modifier
+                            .weight(weight)
+                            .fillMaxHeight()
+                    )
+                }
             }
         }
     }

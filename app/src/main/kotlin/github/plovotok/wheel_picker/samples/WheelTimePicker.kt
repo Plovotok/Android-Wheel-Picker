@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.plovotok.wheelpicker.MultiWheelPicker
 import io.github.plovotok.wheelpicker.OverlayConfiguration
-import io.github.plovotok.wheelpicker.WheelConfig
 import io.github.plovotok.wheelpicker.WheelPickerState
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.joinAll
@@ -34,7 +33,7 @@ import kotlinx.datetime.LocalTime
 @Composable
 fun WheelTimePicker(
     modifier: Modifier = Modifier,
-    overlay: OverlayConfiguration? = OverlayConfiguration(),
+    scrimColor: Color,
     state: WheelTimePickerState,
 ) {
     val textStyle = LocalTextStyle.current.copy(
@@ -60,10 +59,13 @@ fun WheelTimePicker(
             }
         },
         itemHeightDp = 34.dp,
-        wheelConfig = {
-            WheelConfig(1f)
-        },
-        overlay = overlay,
+        overlay = OverlayConfiguration.create(
+            scrimColor = scrimColor.copy(alpha = 0.7f),
+            selectionScale = 1.08f,
+            overlayTranslate = {
+                if (it == 0) 4.dp else -4.dp
+            }
+        ),
         contentAlignment = {
             if (it == 0) {
                 Alignment.CenterEnd
@@ -184,7 +186,8 @@ private fun TimePickerPreview() {
     ) {
         WheelTimePicker(
             state = state,
-            modifier = Modifier
+            modifier = Modifier,
+            scrimColor = Color.White.copy(alpha = 0.7f)
         )
     }
 }

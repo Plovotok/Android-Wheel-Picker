@@ -22,9 +22,15 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathOperation
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -36,9 +42,11 @@ public object WheelPickerDefaults {
     internal fun CacheDrawScope.pickerOverlay(
         edgeOffsetYPx: Float,
         itemHeightPx: Int,
-        overlay: OverlayConfiguration?,
+        overlay: OverlayConfiguration,
+        transformOrigin: TransformOrigin,
+        wheelIndex: Int,
     ): DrawResult {
-        return if (overlay != null) {
+        return if (!overlay.isWheelItem) {
             val w = this.size.width
             val h = this.size.height
             val radius = overlay.cornerRadius.toPx()
@@ -70,6 +78,61 @@ public object WheelPickerDefaults {
             }
         } else onDrawWithContent {
             drawContent()
+
+            drawScaleContent(
+                scrimColor = overlay.scrimColor,
+                itemHeightPx = itemHeightPx,
+                overlayConfig = overlay,
+                transformOrigin = transformOrigin,
+                wheelIndex = wheelIndex
+            )
+        }
+    }
+
+    private fun ContentDrawScope.drawScaleContent(
+        scrimColor: Color,
+        itemHeightPx: Int,
+        overlayConfig: OverlayConfiguration,
+        transformOrigin: TransformOrigin,
+        wheelIndex: Int
+    ) {
+        val overlayTranslate: Dp = overlayConfig.overlayTranslate(wheelIndex)
+        drawRect( // draw full background color
+            color = scrimColor.copy(alpha = 1f),
+            topLeft = Offset(
+                x = 0f,
+                y = drawContext.size.height / 2 - itemHeightPx / 2 + overlayConfig.verticalPadding.toPx()
+            ),
+            size = Size(
+                width = drawContext.size.width,
+                height = itemHeightPx.toFloat() - (overlayConfig.verticalPadding.toPx() * 2)
+            )
+        )
+
+        clipRect( // clip by overlay size
+            left = if (overlayConfig.clipStart) overlayConfig.horizontalPadding.toPx() else 0f,
+            right = drawContext.size.width - (if (overlayConfig.clipEnd) overlayConfig.horizontalPadding.toPx() else 0f),
+            top = drawContext.size.height / 2 - itemHeightPx / 2 + overlayConfig.verticalPadding.toPx(),
+            bottom = drawContext.size.height / 2 + itemHeightPx / 2 - overlayConfig.verticalPadding.toPx()
+        ) {
+            scale(
+                overlayConfig.selectionScale, overlayConfig.selectionScale, // scale overlay content
+                pivot = Offset(
+                    x = drawContext.size.width * transformOrigin.pivotFractionX,
+                    y = drawContext.size.height * transformOrigin.pivotFractionY
+                )
+            ) {
+                clipRect( // clip by scaled overlay content size
+                    top = drawContext.size.height / 2 - itemHeightPx / 2 + overlayConfig.verticalPadding.toPx(),
+                    bottom = drawContext.size.height / 2 + itemHeightPx / 2 - overlayConfig.verticalPadding.toPx()
+                ) {
+                    translate(
+                        left = overlayTranslate.toPx() // translate if necessary
+                    ) {
+                        this@drawScaleContent.drawContent()
+                    }
+                }
+            }
         }
     }
 

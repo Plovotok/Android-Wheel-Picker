@@ -76,7 +76,7 @@ fun SinglePickerScreen(
             WheelPicker(
                 data = list,
                 state = pickerState,
-                overlay = OverlayConfiguration(
+                overlay = OverlayConfiguration.create(
                     scrimColor = MaterialTheme.colorScheme.background.copy(alpha = 0.7f),
                 ),
                 itemContent = {
