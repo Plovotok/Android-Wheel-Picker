@@ -63,7 +63,6 @@ public data class WheelConfig(
  *
  * Example usage: select date (day, month, year), time (hours, minutes, seconds).
  *
- * @param T Type of data displayed in wheel elements.
  * @param nonFocusedItems Number of visible items (out of focus). Will be adjusted to an odd number.
  * @param itemHeightDp The height of a single item in dp. Applies to all wheels.
  * @param wheelConfig A function that returns the [WheelConfig] configuration for each wheel based on its index.
@@ -74,7 +73,7 @@ public data class WheelConfig(
  * @param state A function that returns the state of [WheelPickerState] for each wheel based on its index.
  * @param contentAlignment Function that returns the content alignment for each wheel.
  * Default is centered.
- * @param overlay Overlay configuration (background, selection) common to all wheels. If 'null', the overlay is not displayed.
+ * @param overlay Overlay configuration (background, selection) common to all wheels.
  */
 @Composable
 public fun MultiWheelPicker(

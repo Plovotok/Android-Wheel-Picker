@@ -77,6 +77,8 @@ internal val LocalWheelIndex = compositionLocalOf { 0 }
  * @property cornerRadius The radius of the rounded corners of the overlay. Defaul value is 7.dp.
  * @property horizontalPadding Horizontal overlay padding. The default is 0.dp.
  * @property verticalPadding Vertical indentation of the overlay. The default is -2.dp (slightly out of bounds).
+ * @property selectionScale The scale of the selected element. The default is 1.0f.
+ * @param overlayTranslate A function that returns the translation of the overlay's content for each wheel.
  */
 @Stable
 public data class OverlayConfiguration internal constructor(
@@ -94,6 +96,21 @@ public data class OverlayConfiguration internal constructor(
 ) {
 
     public companion object {
+        /**
+         * Overlay (underlay) display configuration for the selection wheel.
+         *
+         * Allows you to customize the appearance of the background and highlighted area.
+         *
+         * @property scrimColor The color of the darkened background outside the active zone.
+         * Default is white with 70% transparency.
+         * @property focusColor The color of the selected (focus) area where the active element is located.
+         * Default is gray with 40% transparency.
+         * @property cornerRadius The radius of the rounded corners of the overlay. Defaul value is 7.dp.
+         * @property horizontalPadding Horizontal overlay padding. The default is 0.dp.
+         * @property verticalPadding Vertical indentation of the overlay. The default is -2.dp (slightly out of bounds).
+         * @property selectionScale The scale of the selected element. The default is 1.0f.
+         * @param overlayTranslate A function that returns the translation of the overlay's content for each wheel.
+         */
         public fun create(
             scrimColor: Color = Color.White.copy(alpha = 0.7f),
             focusColor: Color = Color.Gray.copy(alpha = 0.4f),
@@ -127,7 +144,6 @@ public data class OverlayConfiguration internal constructor(
  * and the side ones are rotated and reduced. Supports infinite scrolling, clicking on an element
  * for quick selection and animated positioning.
  *
- * @param T The type of data displayed in the wheel elements.
  * @param data The list of data from which the wheel elements are formed.
  * @param key A function that returns a unique key for each item based on its index.
  * @param itemContent A composable block that displays an item by its index in a list.
@@ -136,7 +152,7 @@ public data class OverlayConfiguration internal constructor(
  * @param contentAlignment Alignment of the content within each element. The default is centered.
  * @param itemHeightDp The height of a single item in dp. The default value is from [WheelPickerDefaults.DefaultItemHeight].
  * @param transformOrigin Transform point for 3D effects. The default is the center.
- * @param overlay Overlay configuration (background, selection, padding).If 'null', the overlay is not displayed.
+ * @param overlay Overlay configuration (background, selection, padding, scale, ...).
  */
 @Composable
 public fun WheelPicker(
