@@ -110,25 +110,26 @@ public class WheelPickerState(
      * @param totalItemsCount The total number of items in the list.
      */
     public suspend fun animateScrollToItem(index: Int, totalItemsCount: Int) {
-        if (index >= 0) {
-            if (infinite) {
-                val currentIndex = currentSelectedItemIndex + INFINITE_OFFSET
-                val selectedItem = selectedItem(totalItemsCount)
-                if (selectedItem == index) return // Ничего не делаем
+        require(totalItemsCount > 0) { "totalItemsCount must be greater than 0" }
+        require(index >= 0) { "index must be greater than or equal to 0" }
 
-                // Находим, на сколько нужно прокрутить список от текущего элемента
-                val diff = calculateOptimalShift(totalItemsCount, selectedItem, index)
+        if (infinite) {
+            val currentIndex = currentSelectedItemIndex + INFINITE_OFFSET
+            val selectedItem = selectedItem(totalItemsCount)
+            if (selectedItem == index) return // Ничего не делаем
 
-                // Проверка, что мы не уйдем за границы списка LazyList'а
-                val append = if (diff.first > 0) {
-                    if (diff.first + currentIndex < Int.MAX_VALUE) diff.first else diff.second
-                } else {
-                    if (diff.first + currentIndex > 0) diff.first else diff.second
-                }
-                animateScrollToItemInternal(currentIndex + append)
+            // Находим, на сколько нужно прокрутить список от текущего элемента
+            val diff = calculateOptimalShift(totalItemsCount, selectedItem, index)
+
+            // Проверка, что мы не уйдем за границы списка LazyList'а
+            val append = if (diff.first > 0) {
+                if (diff.first + currentIndex < Int.MAX_VALUE) diff.first else diff.second
             } else {
-                animateScrollToItemInternal(index)
+                if (diff.first + currentIndex > 0) diff.first else diff.second
             }
+            animateScrollToItemInternal(currentIndex + append)
+        } else {
+            animateScrollToItemInternal(index)
         }
     }
 

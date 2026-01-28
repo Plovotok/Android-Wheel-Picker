@@ -43,15 +43,21 @@ import kotlin.math.roundToInt
 /**
  * Single-wheel configuration in [MultiWheelPicker].
  *
- * Allows you to set the relative weight (width) of the wheel compared to others.
+ * Define configuration for the wheel.
  *
  * @property weight The relative weight of the wheel, which determines its width.
  * Width is distributed in proportion to the weights of all wheels.
  * The default is 1f (evenly distributed).
+ * @property data Lst of data for that wheel.
+ * @property state State of [WheelPickerState] for that wheel.
+ * @property contentAlignment Content alignment for that wheel.
  */
 @Immutable
 public data class WheelConfig(
     val weight: Float = 1f,
+    val contentAlignment: Alignment = Alignment.Center,
+    val data: List<*>,
+    val state: WheelPickerState
 )
 
 /**
@@ -68,25 +74,19 @@ public data class WheelConfig(
  * @param wheelConfig A function that returns the [WheelConfig] configuration for each wheel based on its index.
  * Determines the relative width of the wheel.
  * @param wheelCount Number of wheels. Must be 1 at least.
- * @param data A function that returns a list of data for each wheel by its index.
  * @param itemContent A composable block to display an item. Accepts wheel index and element index.
- * @param state A function that returns the state of [WheelPickerState] for each wheel based on its index.
- * @param contentAlignment Function that returns the content alignment for each wheel.
  * Default is centered.
  * @param overlay Overlay configuration (background, selection) common to all wheels.
  */
 @Composable
 public fun MultiWheelPicker(
     modifier: Modifier = Modifier,
+    wheelCount: Int,
+    wheelConfig: (wheelIndex: Int) -> WheelConfig,
+    itemContent: @Composable (wheelIndex: Int, index: Int)  -> Unit,
+    overlay: OverlayConfiguration = OverlayConfiguration.create(),
     nonFocusedItems: Int = WheelPickerDefaults.DEFAULT_UNFOCUSED_ITEMS_COUNT,
     itemHeightDp: Dp = WheelPickerDefaults.DefaultItemHeight,
-    wheelConfig: (wheelIndex: Int) -> WheelConfig = { WheelConfig() },
-    wheelCount: Int,
-    data: (wheelIndex: Int) -> List<*>,
-    itemContent: @Composable (wheelIndex: Int, index: Int)  -> Unit,
-    state: (wheelIndex: Int) -> WheelPickerState,
-    contentAlignment: (wheelIndex: Int) -> Alignment = { Alignment.Center },
-    overlay: OverlayConfiguration = OverlayConfiguration.create(),
 ) {
     require(wheelCount > 0) {
         "wheelCount should be 1 at least!"
@@ -148,14 +148,16 @@ public fun MultiWheelPicker(
                 // Центр текущего колеса
                 val currentCenter = previousWidth + wheelWidth / 2
 
+                val config = wheelConfig(wheelIndex)
+
                 CompositionLocalProvider(
                     LocalWheelIndex provides wheelIndex
                 ) {
                     WheelPicker(
-                        data = data(wheelIndex),
-                        state = state(wheelIndex),
+                        data = config.data,
+                        state = config.state,
                         itemHeightDp = itemHeightDp,
-                        contentAlignment = contentAlignment(wheelIndex),
+                        contentAlignment = config.contentAlignment,
                         nonFocusedItems = nonFocusedItems,
                         itemContent = {
                             itemContent(wheelIndex, it)

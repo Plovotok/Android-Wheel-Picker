@@ -15,6 +15,7 @@ limitations under the License.
  */
 package io.github.plovotok.wheelpicker
 
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.draw.CacheDrawScope
 import androidx.compose.ui.draw.DrawResult
 import androidx.compose.ui.geometry.CornerRadius
@@ -34,6 +35,7 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
+@Stable
 public object WheelPickerDefaults {
 
     public const val DEFAULT_UNFOCUSED_ITEMS_COUNT: Int = 8

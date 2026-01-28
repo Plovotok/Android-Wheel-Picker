@@ -165,6 +165,7 @@ public fun WheelPicker(
     contentAlignment: Alignment = Alignment.Center,
     itemHeightDp: Dp = WheelPickerDefaults.DefaultItemHeight,
     transformOrigin: TransformOrigin = TransformOrigin.Center,
+    userScrollEnabled: Boolean = true,
     overlay: OverlayConfiguration = OverlayConfiguration.create(),
 ) {
 
@@ -221,7 +222,8 @@ public fun WheelPicker(
                             wheelIndex = index
                         )
                     }
-                    .pointerInput(state.lazyListState) {
+                    .pointerInput(state.lazyListState, userScrollEnabled) {
+                        if (!userScrollEnabled) return@pointerInput
                         detectTapGestures {
                             if (state.isScrollInProgress) return@detectTapGestures
                             val clickedItem = calculateTapItem(
@@ -238,6 +240,7 @@ public fun WheelPicker(
                             }
                         }
                     },
+                userScrollEnabled = userScrollEnabled,
                 contentPadding = PaddingValues(vertical = edgeOffsetDp),
                 flingBehavior = rememberSnapFlingBehavior(lazyListState = state.lazyListState)
             ) {

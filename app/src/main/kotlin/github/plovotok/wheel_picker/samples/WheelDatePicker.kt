@@ -102,13 +102,6 @@ fun WheelDatePicker(
         val width = maxWidth
 
         MultiWheelPicker(
-            data = {
-                when (it) {
-                    0 -> WheelDatePickerState.daysList
-                    1 -> monthList
-                    else -> WheelDatePickerState.yearList
-                }
-            },
             overlay = OverlayConfiguration.create(
                 scrimColor = scrimColor,
                 selectionScale = 1.08f,
@@ -116,21 +109,13 @@ fun WheelDatePicker(
                     if (it == 0) 10.dp else if (it == 1) 6.dp else -8.dp
                 }
             ),
-            state = {
-                when (it) {
-                    0 -> state.dayState
-                    1 -> state.monthState
-                    else -> state.yearState
-                }
-            },
             wheelConfig = {
-                WheelDatePickerDefaults.config(it, width)
-            },
-            contentAlignment = {
-                when (it) {
-                    0 -> Alignment.CenterEnd
-                    else -> Alignment.CenterStart
-                }
+                WheelDatePickerDefaults.wheelWeight(
+                    it,
+                    width,
+                    state,
+                    monthList
+                )
             },
             itemHeightDp = 34.dp,
             itemContent = { wheelIndex, itemIndex ->

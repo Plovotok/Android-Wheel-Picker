@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.plovotok.wheelpicker.MultiWheelPicker
 import io.github.plovotok.wheelpicker.OverlayConfiguration
+import io.github.plovotok.wheelpicker.WheelConfig
 import io.github.plovotok.wheelpicker.WheelPickerState
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.joinAll
@@ -44,19 +45,22 @@ fun WheelTimePicker(
     )
 
     MultiWheelPicker(
-        data = {
-            when (it) {
-                0 -> state.hoursList
-                else -> state.minutesList
-            }
-        },
         nonFocusedItems = 8,
         wheelCount = 2,
-        state = {
-            when (it) {
-                0 -> state.hoursState
-                else -> state.minutesState
-            }
+        wheelConfig = {
+            WheelConfig(
+                data = when (it) {
+                    0 -> state.hoursList
+                    else -> state.minutesList
+                },
+                state = when (it) {
+                    0 -> state.hoursState
+                    else -> state.minutesState
+                },
+                contentAlignment = if (it == 0) {
+                    Alignment.CenterEnd
+                } else Alignment.CenterStart
+            )
         },
         itemHeightDp = 34.dp,
         overlay = OverlayConfiguration.create(
@@ -66,11 +70,6 @@ fun WheelTimePicker(
                 if (it == 0) 4.dp else -4.dp
             }
         ),
-        contentAlignment = {
-            if (it == 0) {
-                Alignment.CenterEnd
-            } else Alignment.CenterStart
-        },
         itemContent = { wheelIndex, index ->
             val text = if (wheelIndex == 0) {
                 state.hoursList[index]
