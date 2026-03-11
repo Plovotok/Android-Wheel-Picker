@@ -49,7 +49,6 @@ description = properties["POM_DESCRIPTION"].toString()
 dependencies {
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.runtime)
-//    implementation(libs.androidx.compose.ui)
 }
 
 afterEvaluate {

@@ -39,8 +39,7 @@ fun WheelTimePicker(
 ) {
     val textStyle = LocalTextStyle.current.copy(
         color = MaterialTheme.colorScheme.onBackground,
-        fontSize = 24.sp,
-        fontWeight = FontWeight(450),
+        fontSize = 21.sp,
         textMotion = TextMotion.Animated
     )
 
@@ -65,9 +64,9 @@ fun WheelTimePicker(
         itemHeightDp = 34.dp,
         overlay = OverlayConfiguration.create(
             scrimColor = scrimColor.copy(alpha = 0.7f),
-            selectionScale = 1.08f,
+            selectionScale = 1.19f,
             overlayTranslate = {
-                if (it == 0) 4.dp else -4.dp
+                if (it == 0) 7.dp else -7.dp
             }
         ),
         itemContent = { wheelIndex, index ->
@@ -79,9 +78,11 @@ fun WheelTimePicker(
             Text(
                 text = text,
                 style = textStyle,
-                modifier = Modifier.padding(
-                    horizontal = 22.dp
-                )
+                modifier = Modifier
+                    .padding(
+                        end = if (wheelIndex == 0) 10.dp else 0.dp,
+                        start = if (wheelIndex == 1) 10.dp else 0.dp
+                    )
             )
 
         },

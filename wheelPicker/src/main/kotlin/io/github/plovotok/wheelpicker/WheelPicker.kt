@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListItemInfo
@@ -289,7 +290,8 @@ private fun ItemWrapper(
                     getLayoutInfo = getLayoutInfo,
                     transformOrigin = transformOrigin
                 )
-            },
+            }
+            .padding(horizontal = 20.dp),
         contentAlignment = contentAlignment
     ) {
         content()
@@ -326,7 +328,7 @@ private fun GraphicsLayerScope.render3DVerticalItemEffect(
     val offsetFraction = (itemCenterY - viewportCenterY) / viewportCenterY
 
     // Визуальное сужение элемента (квадратичная функция с коэффициентом создает более плавный эффект)
-    val scale = 1 - (offsetFraction.absoluteValue).pow(2) * 0.11f
+    val scale = 1 - (offsetFraction.absoluteValue).pow(2) * 0.118f
     scaleX = scale
 
     // Не показываем элементы, которые не попадают в viewport
@@ -357,7 +359,7 @@ private fun GraphicsLayerScope.render3DVerticalItemEffect(
         diffY
     }
     // Добавляем перспективу (значение вычислено эмпирически)
-    this.cameraDistance = layoutInfo.viewportSize.height.toFloat() / 25f
+    this.cameraDistance = layoutInfo.viewportSize.height.toFloat() / 27f
     this.transformOrigin = transformOrigin
 }
 
