@@ -88,18 +88,20 @@ val list = buildList {
 
 MultiWheelPicker(
     wheelCount = 3,
-    state = {
-        when (it) {
-            0 -> state1
-            1 -> state2
-            else -> state3
-        }
+    wheelConfig = { wheel ->
+        WheelConfig(
+            data = list,
+            state = when (it) {
+                0 -> state1
+                1 -> state2
+                else -> state3
+            }
+        )
     },
     overlay = OverlayConfiguration.create(
         scrimColor = MaterialTheme.colorScheme.background.copy(alpha = 0.7f),
     ),
     itemHeightDp = 38.dp,
-    data = { list },
     itemContent = { wheelIndex, listIndex ->
         Text(
             text = list[listIndex],
