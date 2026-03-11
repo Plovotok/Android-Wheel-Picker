@@ -10,12 +10,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import github.plovotok.wheel_picker.navigation.BasicScreen
 import github.plovotok.wheel_picker.ui.components.icons.BackIcon
+import github.plovotok.wheel_picker.ui.theme.PickerSampleAppTheme
 import io.github.plovotok.wheelpicker.MultiWheelPicker
 import io.github.plovotok.wheelpicker.OverlayConfiguration
+import io.github.plovotok.wheelpicker.WheelConfig
 import io.github.plovotok.wheelpicker.rememberWheelPickerState
 
 @Composable
@@ -39,24 +42,28 @@ fun MultiPickerScreen(
         val state2 = rememberWheelPickerState(3)
         val state3 = rememberWheelPickerState(4)
         Column(
-            modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             MultiWheelPicker(
                 wheelCount = 3,
-                state = {
-                    when (it) {
-                        0 -> state1
-                        1 -> state2
-                        else -> state3
-                    }
-                },
                 overlay = OverlayConfiguration.create(
                     scrimColor = MaterialTheme.colorScheme.background.copy(alpha = 0.7f),
                 ),
                 itemHeightDp = 38.dp,
-                data = { list },
+                wheelConfig = {
+                    WheelConfig(
+                        data = list,
+                        state = when (it) {
+                            0 -> state1
+                            1 -> state2
+                            else -> state3
+                        }
+                    )
+                },
                 itemContent = { _, listIdex ->
                     Text(
                         text = list[listIdex],
@@ -67,5 +74,13 @@ fun MultiPickerScreen(
             )
         }
 
+    }
+}
+
+@Preview
+@Composable
+private fun MultiPickerScreenPreview() {
+    PickerSampleAppTheme {
+        MultiPickerScreen {  }
     }
 }

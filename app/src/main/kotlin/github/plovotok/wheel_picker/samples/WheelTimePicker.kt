@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.plovotok.wheelpicker.MultiWheelPicker
 import io.github.plovotok.wheelpicker.OverlayConfiguration
+import io.github.plovotok.wheelpicker.WheelConfig
 import io.github.plovotok.wheelpicker.WheelPickerState
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.joinAll
@@ -38,39 +39,36 @@ fun WheelTimePicker(
 ) {
     val textStyle = LocalTextStyle.current.copy(
         color = MaterialTheme.colorScheme.onBackground,
-        fontSize = 24.sp,
-        fontWeight = FontWeight(450),
+        fontSize = 21.sp,
         textMotion = TextMotion.Animated
     )
 
     MultiWheelPicker(
-        data = {
-            when (it) {
-                0 -> state.hoursList
-                else -> state.minutesList
-            }
-        },
         nonFocusedItems = 8,
         wheelCount = 2,
-        state = {
-            when (it) {
-                0 -> state.hoursState
-                else -> state.minutesState
-            }
+        wheelConfig = {
+            WheelConfig(
+                data = when (it) {
+                    0 -> state.hoursList
+                    else -> state.minutesList
+                },
+                state = when (it) {
+                    0 -> state.hoursState
+                    else -> state.minutesState
+                },
+                contentAlignment = if (it == 0) {
+                    Alignment.CenterEnd
+                } else Alignment.CenterStart
+            )
         },
         itemHeightDp = 34.dp,
         overlay = OverlayConfiguration.create(
             scrimColor = scrimColor.copy(alpha = 0.7f),
-            selectionScale = 1.08f,
+            selectionScale = 1.19f,
             overlayTranslate = {
-                if (it == 0) 4.dp else -4.dp
+                if (it == 0) 7.dp else -7.dp
             }
         ),
-        contentAlignment = {
-            if (it == 0) {
-                Alignment.CenterEnd
-            } else Alignment.CenterStart
-        },
         itemContent = { wheelIndex, index ->
             val text = if (wheelIndex == 0) {
                 state.hoursList[index]
@@ -80,9 +78,11 @@ fun WheelTimePicker(
             Text(
                 text = text,
                 style = textStyle,
-                modifier = Modifier.padding(
-                    horizontal = 22.dp
-                )
+                modifier = Modifier
+                    .padding(
+                        end = if (wheelIndex == 0) 10.dp else 0.dp,
+                        start = if (wheelIndex == 1) 10.dp else 0.dp
+                    )
             )
 
         },

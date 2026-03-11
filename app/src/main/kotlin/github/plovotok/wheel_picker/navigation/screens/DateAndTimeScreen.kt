@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import github.plovotok.wheel_picker.navigation.BasicScreen
 import github.plovotok.wheel_picker.samples.WheelDatePicker
@@ -39,6 +40,7 @@ import github.plovotok.wheel_picker.samples.rememberDatePickerState
 import github.plovotok.wheel_picker.samples.rememberTimePickerState
 import github.plovotok.wheel_picker.samples.toStringWithLeadingZero
 import github.plovotok.wheel_picker.ui.components.icons.BackIcon
+import github.plovotok.wheel_picker.ui.theme.PickerSampleAppTheme
 import github.plovotok.wheel_picker.ui.utils.useDebounce
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
@@ -113,7 +115,10 @@ fun DateAndTimeScreen(
             datePickerState.dateState.useDebounce { date = it }
 
             Column(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).padding(bottom = 6.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 6.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
 
@@ -172,7 +177,9 @@ fun DateAndTimeScreen(
 
             timePickerState.timeState.useDebounce { time = it }
             Column(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 WheelTimePicker(
@@ -241,3 +248,11 @@ private fun LocalDateTime.formatWithPattern(pattern: DatePattern) = formatWithPa
 
 fun LocalDateTime.formatWithPattern(pattern: String) =
     DateTimeFormatter.ofPattern(pattern, Locale.forLanguageTag("ru")).format(toJavaLocalDateTime()).lowercase()
+
+@Preview
+@Composable
+private fun DateAndTimeScreen() {
+    PickerSampleAppTheme {
+        DateAndTimeScreen {  }
+    }
+}
