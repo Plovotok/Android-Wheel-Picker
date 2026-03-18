@@ -53,7 +53,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import io.github.plovotok.wheelpicker.WheelPickerDefaults.curveRate
 import io.github.plovotok.wheelpicker.WheelPickerDefaults.pickerOverlay
 import io.github.plovotok.wheelpicker.WheelPickerDefaults.viewportCurveRate
 import kotlinx.coroutines.launch
@@ -81,6 +80,7 @@ internal val LocalWheelIndex = compositionLocalOf { 0 }
  * @property selectionScale The scale of the selected element. The default is 1.0f.
  * @param overlayTranslate A function that returns the translation of the overlay's content for each wheel.
  */
+@ConsistentCopyVisibility
 @Stable
 public data class OverlayConfiguration internal constructor(
     val scrimColor: Color = Color.White.copy(alpha = 0.7f),
@@ -153,6 +153,10 @@ public data class OverlayConfiguration internal constructor(
  * @param contentAlignment Alignment of the content within each element. The default is centered.
  * @param itemHeightDp The height of a single item in dp. The default value is from [WheelPickerDefaults.DefaultItemHeight].
  * @param transformOrigin Transform point for 3D effects. The default is the center.
+ * @param curveRate Controls the curvature of the 3-D cylinder effect. Must be in the range
+ * `[WheelPickerDefaults.MIN_CURVE_RATE, WheelPickerDefaults.MAX_CURVE_RATE]`.
+ * Lower values produce a flatter, almost-flat appearance; higher values produce a more
+ * pronounced drum shape. Defaults to [WheelPickerDefaults.MAX_CURVE_RATE].
  * @param overlay Overlay configuration (background, selection, padding, scale, ...).
  */
 @Composable
@@ -167,8 +171,13 @@ public fun WheelPicker(
     itemHeightDp: Dp = WheelPickerDefaults.DefaultItemHeight,
     transformOrigin: TransformOrigin = TransformOrigin.Center,
     userScrollEnabled: Boolean = true,
+    curveRate: Float = WheelPickerDefaults.MAX_CURVE_RATE,
     overlay: OverlayConfiguration = OverlayConfiguration.create(),
 ) {
+
+    // Ограничиваем curveRate допустимым диапазоном — за его пределами геометрия цилиндра
+    // даёт визуально некорректный результат
+    val effectiveCurveRate = curveRate.coerceIn(WheelPickerDefaults.MIN_CURVE_RATE, WheelPickerDefaults.MAX_CURVE_RATE)
 
     // редактируем количество так, чтобы получилось нечетное количество элементов
     val visibleItems = nonFocusedItems / 2 * 2 + 1
@@ -203,7 +212,7 @@ public fun WheelPicker(
 
     Box(
         modifier = modifier
-            .height(height / (curveRate / viewportCurveRate))
+            .height(height / (effectiveCurveRate / viewportCurveRate))
             .clipScrollableContainer(orientation = Orientation.Vertical) // обрезаем контент по вертикали, чтобы не накладывался оверлей на контент вне колеса
     ) {
         CompositionLocalProvider(
@@ -229,6 +238,7 @@ public fun WheelPicker(
                             if (state.isScrollInProgress) return@detectTapGestures
                             val clickedItem = calculateTapItem(
                                 tapOffset = it,
+                                curveRate = effectiveCurveRate,
                                 getLayoutInfo = {
                                     state.lazyListState.layoutInfo
                                 }
@@ -259,6 +269,7 @@ public fun WheelPicker(
                         contentAlignment = contentAlignment,
                         index = index,
                         transformOrigin = transformOrigin,
+                        curveRate = effectiveCurveRate,
                         getLayoutInfo = {
                             state.lazyListState.layoutInfo
                         }
@@ -279,6 +290,7 @@ private fun ItemWrapper(
     index: Int,
     getLayoutInfo: () -> LazyListLayoutInfo,
     transformOrigin: TransformOrigin = TransformOrigin.Center,
+    curveRate: Float = WheelPickerDefaults.MAX_CURVE_RATE,
     content: @Composable () -> Unit,
 ) {
     Box(
@@ -288,7 +300,8 @@ private fun ItemWrapper(
                 render3DVerticalItemEffect(
                     index = index,
                     getLayoutInfo = getLayoutInfo,
-                    transformOrigin = transformOrigin
+                    transformOrigin = transformOrigin,
+                    curveRate = curveRate
                 )
             }
             .padding(horizontal = 20.dp),
@@ -316,6 +329,7 @@ private fun GraphicsLayerScope.render3DVerticalItemEffect(
     index: Int,
     getLayoutInfo: () -> LazyListLayoutInfo,
     transformOrigin: TransformOrigin,
+    curveRate: Float,
 ) {
     val layoutInfo = getLayoutInfo()
     // Информацию об элементе можно получить из LazyListLayoutInfo
@@ -358,8 +372,15 @@ private fun GraphicsLayerScope.render3DVerticalItemEffect(
         }
         diffY
     }
-    // Добавляем перспективу (значение вычислено эмпирически)
-    this.cameraDistance = layoutInfo.viewportSize.height.toFloat() / 27f
+    // Перспектива: cameraDistance пропорциональна радиусу цилиндра.
+    // r = 2 * viewportCenterY / (π * curveRate) — радиус виртуального цилиндра (в пикселях).
+    // Коэффициент π / 27 получен из эмпирического значения (viewportHeight / 27):
+    //   viewportHeight / 27 = 2·viewportCenterY / 27
+    //   r = 2·viewportCenterY / (π·curveRate)
+    //   → cameraDistance = r · π·curveRate / 27 = r · (π / 27) при curveRate = 1
+    // При изменении curveRate радиус r масштабируется автоматически, сохраняя соотношение
+    // геометрии цилиндра и перспективы.
+    this.cameraDistance = r * (Math.PI / 27.0).toFloat()
     this.transformOrigin = transformOrigin
 }
 
@@ -370,6 +391,7 @@ private fun getItemCenter(itemInfo: LazyListItemInfo): Float {
 
 private fun calculateTapItem(
     tapOffset: Offset,
+    curveRate: Float,
     getLayoutInfo: () -> LazyListLayoutInfo,
 ): Int? {
     val layoutInfo = getLayoutInfo()

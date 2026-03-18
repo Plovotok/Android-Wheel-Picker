@@ -164,6 +164,26 @@ public object WheelPickerDefaults {
         return resPath
     }
 
-    internal const val curveRate = 1.0f
-    internal const val viewportCurveRate = 0.653f //  При этом коэффициенте заполняется весь viewport, получен эмпирически
+    /**
+     * Maximum curve rate: the cylinder arc spans the full viewport height.
+     * Use this value (or values close to it) for a pronounced 3-D drum effect.
+     *
+     * Pass as the `curveRate` argument of [WheelPicker] / [MultiWheelPicker].
+     */
+    public const val MAX_CURVE_RATE: Float = 1.0f
+
+    /**
+     * Minimum curve rate: the visible items fill exactly the viewport, so the wheel
+     * appears almost flat (minimal perspective distortion).
+     * Obtained empirically — at this coefficient the sum of item heights equals the
+     * visible viewport height.
+     *
+     * Pass as the `curveRate` argument of [WheelPicker] / [MultiWheelPicker].
+     */
+    public const val MIN_CURVE_RATE: Float = 0.653f
+
+    /** @suppress Internal use only. */
+    internal const val curveRate: Float = MAX_CURVE_RATE
+    /** @suppress Internal use only. */
+    internal const val viewportCurveRate: Float = MIN_CURVE_RATE
 }
