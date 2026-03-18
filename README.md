@@ -7,10 +7,11 @@ Example of an iOS implementation UIPickerView in JetpackCompose
 
 ## Features
 - iOS like behavior - smooth scrolling with inertia and snapping the selected element
-- Customization - colors, visible items
+- Customization - colors, visible items, curve rate
 - Infinite list support
 - Observable state
 - Programmatically selectable index
+- 3D cylinder effect with adjustable curvature
 
 ## Implementation
 Implementation steps are described in my [article](https://habr.com/ru/articles/986270/).
@@ -44,9 +45,7 @@ dependencies {
 ```kotlin
 val list = remember {
     buildList {
-        repeat(10) {
-            add("Item ${it + 1}")
-        }
+        repeat(10) { add("Item ${it + 1}") }
     }
 }
 val pickerState = rememberWheelPickerState(
@@ -63,7 +62,6 @@ WheelPicker(
     itemContent = {
         Text(
             text = list[it],
-            fontSize = 18.sp,
             style = MaterialTheme.typography.bodyLarge.copy(
                 fontSize = 18.sp,
                 textMotion = TextMotion.Animated
@@ -77,21 +75,17 @@ WheelPicker(
 ### Multi picker
 
 ```kotlin
-val list = buildList {
-            repeat(10) {
-                add("Item ${(it + 1)}")
-            }
-        }
-        val state1 = rememberWheelPickerState(2)
-        val state2 = rememberWheelPickerState(3)
-        val state3 = rememberWheelPickerState(4)
+val list = buildList { repeat(10) { add("Item ${it + 1}") } }
+val state1 = rememberWheelPickerState(2)
+val state2 = rememberWheelPickerState(3)
+val state3 = rememberWheelPickerState(4)
 
 MultiWheelPicker(
     wheelCount = 3,
     wheelConfig = { wheel ->
         WheelConfig(
             data = list,
-            state = when (it) {
+            state = when (wheel) {
                 0 -> state1
                 1 -> state2
                 else -> state3
@@ -102,7 +96,7 @@ MultiWheelPicker(
         scrimColor = MaterialTheme.colorScheme.background.copy(alpha = 0.7f),
     ),
     itemHeightDp = 38.dp,
-    itemContent = { wheelIndex, listIndex ->
+    itemContent = { _, listIndex ->
         Text(
             text = list[listIndex],
             color = MaterialTheme.colorScheme.onBackground,
