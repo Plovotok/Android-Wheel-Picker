@@ -2,11 +2,15 @@
 Example of an iOS implementation UIPickerView in JetpackCompose
 
 ## Preview
-<img src="/assets/preview_screenshot.png" width="300" /> <img src="/assets/preview.gif" width="300" /> <img src="/assets/date_time.gif" width="300" />
+<img src="/assets/preview_screenshot.png" width="300" /> 
+
+<img src="/assets/single.gif" width="300" />
+<img src="/assets/multi.gif" width="300" />
 
 
 ## Features
 - iOS like behavior - smooth scrolling with inertia and snapping the selected element
+- customizable lens effect
 - Customization - colors, visible items, curve rate
 - Infinite list support
 - Observable state
@@ -106,6 +110,32 @@ MultiWheelPicker(
 )
 ```
 
+
+### Custom Components
+
+Some components built on top of `WheelPicker` / `MultiWheelPicker` that you can copy from the sample app.
+
+#### Country picker
+<img src="/assets/country.gif" />
+
+`WheelPicker` with flag + country name.
+
+See [`CountryPickerScreen.kt`](app/src/main/kotlin/github/plovotok/wheel_picker/navigation/screens/CountryPickerScreen.kt)
+
+#### Date and time picker
+<img src="assets/date_time.gif" >
+
+`MultiWheelPicker` that allows you to select a date and time.
+
+See [`DateAndTimeScreen.kt`](app/src/main/kotlin/github/plovotok/wheel_picker/navigation/screens/DateAndTimeScreen.kt)
+
+
+#### Timer picker
+<img src="/assets/timer.gif" />
+
+`MultiWheelPicker` that allows you to set timer.
+
+See [`TimerPicker.kt`](app/src/main/kotlin/github/plovotok/wheel_picker/navigation/screens/TimerPickerScreen.kt)
 
 ## License
 

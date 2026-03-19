@@ -18,6 +18,7 @@ package io.github.plovotok.wheelpicker
 import androidx.compose.foundation.clipScrollableContainer
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -56,6 +57,7 @@ import kotlin.math.roundToInt
 public data class WheelConfig(
     val weight: Float = 1f,
     val contentAlignment: Alignment = Alignment.Center,
+    val contentPaddings: PaddingValues = PaddingValues(horizontal = 20.dp),
     val data: List<*>,
     val state: WheelPickerState
 )
@@ -124,7 +126,8 @@ public fun MultiWheelPicker(
                     edgeOffsetYPx = (size.height - itemHeightPx) / 2,
                     itemHeightPx = itemHeightPx,
                     overlay = overlay.copy(
-                        isWheelItem = false,
+                        drawRect = true,
+                        drawScaledContent = false,
                         overlayTranslate = { 0.dp}
                     ),
                     transformOrigin = TransformOrigin(0.5f, 0.5f),
@@ -182,10 +185,12 @@ public fun MultiWheelPicker(
                             pivotFractionX = 0.5f - (currentCenter - centerW) / wheelWidth,
                             pivotFractionY = 0.5f
                         ),
+                        contentPaddings = config.contentPaddings,
                         overlay = overlay.copy(
                             clipStart = wheelIndex == 0,
                             clipEnd = wheelIndex == wheelCount - 1,
-                            isWheelItem = true,
+                            drawRect = false,
+                            drawScaledContent = true
                         ),
                         modifier = Modifier
                             .weight(weight)

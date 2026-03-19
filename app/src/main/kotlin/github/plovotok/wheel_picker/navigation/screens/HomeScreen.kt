@@ -51,6 +51,21 @@ fun HomeScreen(
         ListItem(
             headlineContent = {
                 Text(
+                    text = "Country Picker"
+                )
+            },
+            trailingContent = {
+                ForwardIcon()
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    navAction(Destination.CountryPicker)
+                }
+        )
+        ListItem(
+            headlineContent = {
+                Text(
                     text = "Date and time"
                 )
             },
@@ -61,6 +76,21 @@ fun HomeScreen(
                 .fillMaxWidth()
                 .clickable {
                     navAction(Destination.DateAndTime)
+                }
+        )
+        ListItem(
+            headlineContent = {
+                Text(
+                    text = "Timer"
+                )
+            },
+            trailingContent = {
+                ForwardIcon()
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    navAction(Destination.Timer)
                 }
         )
     }
