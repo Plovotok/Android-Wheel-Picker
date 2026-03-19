@@ -10,6 +10,7 @@ Example of an iOS implementation UIPickerView in JetpackCompose
 
 ## Features
 - iOS like behavior - smooth scrolling with inertia and snapping the selected element
+- customizable lens effect
 - Customization - colors, visible items, curve rate
 - Infinite list support
 - Observable state
