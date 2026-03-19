@@ -84,7 +84,7 @@ public data class WheelConfig(
  * @param nonFocusedItems Number of visible off-center items. The value is normalized to an odd
  * total so the selected row always remains centered.
  * @param itemHeightDp Height of one row in every wheel.
- * @param curveRate Controls the curvature of the 3-D cylinder effect applied to every wheel.
+ * @param curveRate Controls the curvature of the 3D cylinder effect applied to every wheel.
  * Must be in the range `[WheelPickerDefaults.MIN_CURVE_RATE, WheelPickerDefaults.MAX_CURVE_RATE]`.
  * Lower values produce a flatter appearance; higher values produce a more pronounced drum shape.
  * Defaults to [WheelPickerDefaults.MAX_CURVE_RATE].
