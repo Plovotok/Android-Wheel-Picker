@@ -2,7 +2,10 @@
 Example of an iOS implementation UIPickerView in JetpackCompose
 
 ## Preview
-<img src="/assets/preview_screenshot.png" width="300" /> <img src="/assets/preview.gif" width="300" /> <img src="/assets/date_time.gif" width="300" />
+<img src="/assets/preview_screenshot.png" width="300" /> 
+
+<img src="/assets/single.gif" width="300" />
+<img src="/assets/multi.gif" width="300" />
 
 
 ## Features
@@ -106,6 +109,32 @@ MultiWheelPicker(
 )
 ```
 
+
+### Custom Components
+
+Some components built on top of `WheelPicker` / `MultiWheelPicker` that you can copy from the sample app.
+
+#### Country picker
+<img src="/assets/country.gif" />
+
+`WheelPicker` with flag + country name rows. Displays the selected country above the wheel.
+
+See [`CountryPickerScreen.kt`](app/src/main/kotlin/github/plovotok/wheel_picker/navigation/screens/CountryPickerScreen.kt)
+
+#### Date and time picker
+<img src="assets/date_time.gif" >
+
+`MultiWheelPicker` that allows you to select a date and time.
+
+See [`DateAndTimeScreen.kt`](app/src/main/kotlin/github/plovotok/wheel_picker/navigation/screens/DateAndTimeScreen.kt)
+
+
+#### Timer picker
+<img src="/assets/timer.gif" />
+
+`TimerPicker` — a three-column hours/minutes/seconds picker built on `MultiWheelPicker` with inline unit labels.
+
+See [`TimerPicker.kt`](app/src/main/kotlin/github/plovotok/wheel_picker/navigation/screens/TimerPickerScreen.kt)
 
 ## License
 
