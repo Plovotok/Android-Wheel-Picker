@@ -16,8 +16,10 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import github.plovotok.wheel_picker.navigation.screens.DateAndTimeScreen
+import github.plovotok.wheel_picker.navigation.screens.TimerPickerScreen
 import github.plovotok.wheel_picker.navigation.screens.HomeScreen
 import github.plovotok.wheel_picker.navigation.screens.MultiPickerScreen
+import github.plovotok.wheel_picker.navigation.screens.CountryPickerScreen
 import github.plovotok.wheel_picker.navigation.screens.SinglePickerScreen
 
 private fun <T: NavKey> NavBackStack<T>.addUnique(dst: T){
@@ -61,6 +63,14 @@ fun AppNavigation() {
 
                 is Destination.DateAndTime -> NavEntry(key) {
                     DateAndTimeScreen(onBack = backStack::removeLastOrNull)
+                }
+
+                is Destination.Timer -> NavEntry(key) {
+                    TimerPickerScreen(onBack = backStack::removeLastOrNull)
+                }
+
+                is Destination.CountryPicker -> NavEntry(key) {
+                    CountryPickerScreen(onBack = backStack::removeLastOrNull)
                 }
 
                 else -> error("Unknown key $key")

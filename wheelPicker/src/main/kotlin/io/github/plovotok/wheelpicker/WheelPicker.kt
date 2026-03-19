@@ -93,7 +93,8 @@ public data class OverlayConfiguration internal constructor(
 
     internal val clipStart: Boolean,
     internal val clipEnd: Boolean,
-    internal val isWheelItem: Boolean
+    internal val drawRect: Boolean,
+    internal val drawScaledContent: Boolean
 ) {
 
     public companion object {
@@ -132,7 +133,8 @@ public data class OverlayConfiguration internal constructor(
                 overlayTranslate = overlayTranslate,
                 clipStart = true,
                 clipEnd = true,
-                isWheelItem = false
+                drawRect = true,
+                drawScaledContent = true
             )
         }
     }
@@ -166,6 +168,7 @@ public fun WheelPicker(
     key: (index: Int) -> String? = { null },
     itemContent: @Composable (Int) -> Unit,
     state: WheelPickerState,
+    contentPaddings: PaddingValues = PaddingValues(horizontal = 20.dp),
     nonFocusedItems: Int = WheelPickerDefaults.DEFAULT_UNFOCUSED_ITEMS_COUNT,
     contentAlignment: Alignment = Alignment.Center,
     itemHeightDp: Dp = WheelPickerDefaults.DefaultItemHeight,
@@ -268,6 +271,7 @@ public fun WheelPicker(
                         itemHeightDp = itemHeightDp,
                         contentAlignment = contentAlignment,
                         index = index,
+                        contentPaddings = contentPaddings,
                         transformOrigin = transformOrigin,
                         curveRate = effectiveCurveRate,
                         getLayoutInfo = {
@@ -289,6 +293,7 @@ private fun ItemWrapper(
     contentAlignment: Alignment,
     index: Int,
     getLayoutInfo: () -> LazyListLayoutInfo,
+    contentPaddings: PaddingValues,
     transformOrigin: TransformOrigin = TransformOrigin.Center,
     curveRate: Float = WheelPickerDefaults.MAX_CURVE_RATE,
     content: @Composable () -> Unit,
@@ -304,7 +309,7 @@ private fun ItemWrapper(
                     curveRate = curveRate
                 )
             }
-            .padding(horizontal = 20.dp),
+            .padding(contentPaddings),
         contentAlignment = contentAlignment
     ) {
         content()

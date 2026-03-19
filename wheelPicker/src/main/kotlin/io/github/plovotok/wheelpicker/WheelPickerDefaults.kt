@@ -48,7 +48,7 @@ public object WheelPickerDefaults {
         transformOrigin: TransformOrigin,
         wheelIndex: Int,
     ): DrawResult {
-        return if (!overlay.isWheelItem) {
+        return if (overlay.drawRect) {
             val w = this.size.width
             val h = this.size.height
             val radius = overlay.cornerRadius.toPx()
@@ -69,6 +69,15 @@ public object WheelPickerDefaults {
             onDrawWithContent {
                 drawContent()
                 this.drawPath(path, overlay.scrimColor)
+                if (overlay.drawScaledContent) {
+                    drawScaleContent(
+                        scrimColor = overlay.scrimColor,
+                        itemHeightPx = itemHeightPx,
+                        overlayConfig = overlay,
+                        transformOrigin = transformOrigin,
+                        wheelIndex = wheelIndex
+                    )
+                }
 
                 this.drawRoundRect(
                     color = overlay.focusColor,
@@ -78,7 +87,7 @@ public object WheelPickerDefaults {
                     style = Fill,
                 )
             }
-        } else onDrawWithContent {
+        } else if (overlay.drawScaledContent) onDrawWithContent {
             drawContent()
 
             drawScaleContent(
@@ -88,6 +97,8 @@ public object WheelPickerDefaults {
                 transformOrigin = transformOrigin,
                 wheelIndex = wheelIndex
             )
+        } else onDrawWithContent {
+            drawContent()
         }
     }
 
