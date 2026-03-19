@@ -78,7 +78,7 @@ public data class WheelConfig(
  * @param wheelConfig Returns the [WheelConfig] for a given `wheelIndex`. This is called for every
  * wheel, so it should be stable and cheap.
  * @param itemContent Renders an item for the specified wheel and item index. Use `wheelIndex` to
- * choose the correct data source, for example `months[index]` for the month wheel.
+ * choose the correct data source.
  * @param overlay Shared [OverlayConfiguration] for the combined picker. Use
  * `overlayTranslate` when the highlighted content for a wheel needs horizontal adjustment.
  * @param nonFocusedItems Number of visible off-center items. The value is normalized to an odd

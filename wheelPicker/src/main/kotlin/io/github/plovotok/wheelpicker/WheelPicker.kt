@@ -347,7 +347,7 @@ private fun GraphicsLayerScope.render3DVerticalItemEffect(
     val offsetFraction = (itemCenterY - viewportCenterY) / viewportCenterY
 
     // Визуальное сужение элемента (квадратичная функция с коэффициентом создает более плавный эффект)
-    val scale = 1 - (offsetFraction.absoluteValue).pow(2) * 0.118f
+    val scale = 1 - (offsetFraction.absoluteValue).pow(2) * 0.08f
     scaleX = scale
 
     // Не показываем элементы, которые не попадают в viewport
@@ -385,7 +385,7 @@ private fun GraphicsLayerScope.render3DVerticalItemEffect(
     //   → cameraDistance = r · π·curveRate / 27 = r · (π / 27) при curveRate = 1
     // При изменении curveRate радиус r масштабируется автоматически, сохраняя соотношение
     // геометрии цилиндра и перспективы.
-    this.cameraDistance = r * (Math.PI / 27.0).toFloat()
+    this.cameraDistance = r * (Math.PI / 20f).toFloat()
     this.transformOrigin = transformOrigin
 }
 

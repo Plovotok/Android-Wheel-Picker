@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,6 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import github.plovotok.wheel_picker.ui.utils.PickerUtils
 import io.github.plovotok.wheelpicker.MultiWheelPicker
 import io.github.plovotok.wheelpicker.OverlayConfiguration
 import io.github.plovotok.wheelpicker.WheelConfig
@@ -120,7 +122,7 @@ fun TimerPicker(
     )
 
     BoxWithConstraints(
-        modifier = modifier,
+        modifier = Modifier.widthIn(max = PickerUtils.PickerMaxWidth).then(modifier),
         contentAlignment = Alignment.Center
     ) {
         val weights = List(3) {
@@ -228,7 +230,7 @@ private fun calculateWeight(
     index: Int,
     fullWidth: Dp,
 ): Float {
-    val midWeight = 140.dp.value / fullWidth.value
+    val midWeight = 180.dp.value / fullWidth.value
 
     return when (index) {
         1 -> midWeight
