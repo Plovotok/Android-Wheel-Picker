@@ -2,7 +2,9 @@ package github.plovotok.wheel_picker.navigation.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.IconButton
@@ -15,34 +17,29 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import github.plovotok.wheel_picker.navigation.BasicScreen
+import github.plovotok.wheel_picker.samples.CountryPicker
+import github.plovotok.wheel_picker.samples.rememberCountryPickerState
 import github.plovotok.wheel_picker.ui.components.icons.BackIcon
 import github.plovotok.wheel_picker.ui.theme.PickerSampleAppTheme
 import github.plovotok.wheel_picker.ui.utils.PickerUtils
-import io.github.plovotok.wheelpicker.MultiWheelPicker
-import io.github.plovotok.wheelpicker.OverlayConfiguration
-import io.github.plovotok.wheelpicker.WheelConfig
-import io.github.plovotok.wheelpicker.rememberWheelPickerState
 
 @Composable
-fun MultiPickerScreen(
+fun CountryPickerScreen(
     onBack: () -> Unit
 ) {
     BasicScreen(
-        title = "Multi Wheel Picker",
+        title = "Country Picker",
         navigationIcon = {
             IconButton(onClick = onBack) {
                 BackIcon()
             }
         }
     ) {
-        val list = buildList {
-            repeat(10) {
-                add("Item ${(it + 1)}")
-            }
-        }
-        val state1 = rememberWheelPickerState(2)
-        val state2 = rememberWheelPickerState(3)
-        val state3 = rememberWheelPickerState(4)
+        val pickerState = rememberCountryPickerState()
+
+        val item = pickerState.settledCountry
+
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -50,40 +47,34 @@ fun MultiPickerScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            MultiWheelPicker(
-                wheelCount = 3,
-                overlay = OverlayConfiguration.create(
-                    scrimColor = MaterialTheme.colorScheme.background.copy(alpha = 0.7f),
-                ),
-                itemHeightDp = 38.dp,
-                wheelConfig = {
-                    WheelConfig(
-                        data = list,
-                        state = when (it) {
-                            0 -> state1
-                            1 -> state2
-                            else -> state3
-                        }
-                    )
-                },
-                itemContent = { _, listIdex ->
-                    Text(
-                        text = list[listIdex],
-                        color = MaterialTheme.colorScheme.onBackground,
-                        fontSize = 20.sp
-                    )
-                },
+            Text(
+                text = item.flag,
+                fontSize = 72.sp,
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = item.name,
+                fontSize = 22.sp,
+                color = MaterialTheme.colorScheme.onBackground,
+                style = MaterialTheme.typography.titleLarge
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            CountryPicker(
+                state = pickerState,
                 modifier = Modifier.widthIn(max = PickerUtils.PickerMaxWidth)
             )
         }
-
     }
 }
 
 @Preview
 @Composable
-private fun MultiPickerScreenPreview() {
+private fun CountryPickerScreenPreview() {
     PickerSampleAppTheme {
-        MultiPickerScreen {  }
+        CountryPickerScreen {}
     }
 }

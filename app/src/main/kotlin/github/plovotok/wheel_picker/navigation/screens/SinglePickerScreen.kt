@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Button
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -22,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import github.plovotok.wheel_picker.navigation.BasicScreen
 import github.plovotok.wheel_picker.ui.components.icons.BackIcon
 import github.plovotok.wheel_picker.ui.theme.PickerSampleAppTheme
+import github.plovotok.wheel_picker.ui.utils.PickerUtils
 import github.plovotok.wheel_picker.ui.utils.debounced
 import io.github.plovotok.wheelpicker.OverlayConfiguration
 import io.github.plovotok.wheelpicker.WheelPicker
@@ -46,6 +48,7 @@ fun SinglePickerScreen(
                 .fillMaxSize()
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
             val list = remember {
@@ -93,7 +96,8 @@ fun SinglePickerScreen(
                         ),
                         color = MaterialTheme.colorScheme.onBackground,
                     )
-                }
+                },
+                modifier = Modifier.widthIn(max = PickerUtils.PickerMaxWidth)
             )
 
             val scope = rememberCoroutineScope()

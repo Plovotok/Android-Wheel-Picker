@@ -2,15 +2,20 @@
 Example of an iOS implementation UIPickerView in JetpackCompose
 
 ## Preview
-<img src="/assets/preview_screenshot.png" width="300" /> <img src="/assets/preview.gif" width="300" /> <img src="/assets/date_time.gif" width="300" />
+<img src="/assets/preview_screenshot.png" width="300" /> 
+
+<img src="/assets/single.gif" width="300" />
+<img src="/assets/multi.gif" width="300" />
 
 
 ## Features
 - iOS like behavior - smooth scrolling with inertia and snapping the selected element
-- Customization - colors, visible items
+- customizable lens effect
+- Customization - colors, visible items, curve rate
 - Infinite list support
 - Observable state
 - Programmatically selectable index
+- 3D cylinder effect with adjustable curvature
 
 ## Implementation
 Implementation steps are described in my [article](https://habr.com/ru/articles/986270/).
@@ -44,9 +49,7 @@ dependencies {
 ```kotlin
 val list = remember {
     buildList {
-        repeat(10) {
-            add("Item ${it + 1}")
-        }
+        repeat(10) { add("Item ${it + 1}") }
     }
 }
 val pickerState = rememberWheelPickerState(
@@ -63,7 +66,6 @@ WheelPicker(
     itemContent = {
         Text(
             text = list[it],
-            fontSize = 18.sp,
             style = MaterialTheme.typography.bodyLarge.copy(
                 fontSize = 18.sp,
                 textMotion = TextMotion.Animated
@@ -77,21 +79,17 @@ WheelPicker(
 ### Multi picker
 
 ```kotlin
-val list = buildList {
-            repeat(10) {
-                add("Item ${(it + 1)}")
-            }
-        }
-        val state1 = rememberWheelPickerState(2)
-        val state2 = rememberWheelPickerState(3)
-        val state3 = rememberWheelPickerState(4)
+val list = buildList { repeat(10) { add("Item ${it + 1}") } }
+val state1 = rememberWheelPickerState(2)
+val state2 = rememberWheelPickerState(3)
+val state3 = rememberWheelPickerState(4)
 
 MultiWheelPicker(
     wheelCount = 3,
     wheelConfig = { wheel ->
         WheelConfig(
             data = list,
-            state = when (it) {
+            state = when (wheel) {
                 0 -> state1
                 1 -> state2
                 else -> state3
@@ -102,7 +100,7 @@ MultiWheelPicker(
         scrimColor = MaterialTheme.colorScheme.background.copy(alpha = 0.7f),
     ),
     itemHeightDp = 38.dp,
-    itemContent = { wheelIndex, listIndex ->
+    itemContent = { _, listIndex ->
         Text(
             text = list[listIndex],
             color = MaterialTheme.colorScheme.onBackground,
@@ -112,6 +110,32 @@ MultiWheelPicker(
 )
 ```
 
+
+### Custom Components
+
+Some components built on top of `WheelPicker` / `MultiWheelPicker` that you can copy from the sample app.
+
+#### Country picker
+<img src="/assets/country.gif" />
+
+`WheelPicker` with flag + country name.
+
+See [`CountryPickerScreen.kt`](app/src/main/kotlin/github/plovotok/wheel_picker/navigation/screens/CountryPickerScreen.kt)
+
+#### Date and time picker
+<img src="assets/date_time.gif" >
+
+`MultiWheelPicker` that allows you to select a date and time.
+
+See [`DateAndTimeScreen.kt`](app/src/main/kotlin/github/plovotok/wheel_picker/navigation/screens/DateAndTimeScreen.kt)
+
+
+#### Timer picker
+<img src="/assets/timer.gif" />
+
+`MultiWheelPicker` that allows you to set timer.
+
+See [`TimerPicker.kt`](app/src/main/kotlin/github/plovotok/wheel_picker/navigation/screens/TimerPickerScreen.kt)
 
 ## License
 

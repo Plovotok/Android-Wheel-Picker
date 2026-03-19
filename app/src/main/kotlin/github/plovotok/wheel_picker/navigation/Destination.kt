@@ -16,5 +16,12 @@ sealed class Destination: NavKey {
     data object MultiPicker: Destination()
 
     @Serializable
+    data object CountryPicker: Destination()
+
+    @Serializable
     data object DateAndTime: Destination()
+
+    @Serializable
+    data object Timer: Destination()
+
 }
